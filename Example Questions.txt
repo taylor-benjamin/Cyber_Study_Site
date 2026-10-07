@@ -1,0 +1,82 @@
+Chapter 1:
+Review questions
+1. An auditor finds internal app traffic on TLS 1.0. Why replace it, and with what? 
+TLS 1.0 is deprecated (weak ciphers, no modern forward secrecy) and flagged by SP 800-52 Rev 2. Move to TLS 1.2 (correctly configured) or preferably TLS 1.3, and disable the legacy versions on the server.
+2. A session is fully encrypted, yet an attacker reads it. How, and what control was missing? 
+Adversary-in-the-middle: the attacker terminated the session and re-originated it, so each leg was encrypted but to the attacker. The missing control is endpoint authentication: host-key/certificate validation or pinning.
+3. Why is public-key SSH authentication more resistant to credential theft than a password? 
+No reusable secret crosses the network or rests on the server: the client signs a challenge with a private key it never transmits, and the server holds only the public key. There is nothing to sniff or replay.
+4. What does ephemeral Diffie-Hellman provide that static key exchange does not? 
+Forward secrecy: because each session uses fresh throwaway keys, later theft of the server's long-term private key cannot decrypt previously recorded sessions.
+5. SFTP, FTPS, and SCP: which rides SSH, and which is preferred today? 
+SFTP and legacy SCP both ride SSH; FTPS is FTP over TLS. SFTP is preferred: SCP was deprecated (CVE-2019-6111) and modern scp uses SFTP underneath.
+6. SPF, DKIM, and DMARC are deployed. Does customer email now travel encrypted? What do these three actually provide? 
+No, they do not encrypt anything. SPF checks the sending IP against the domain's allow-list, DKIM verifies a digital signature over the message, and DMARC sets the enforcement policy and reporting when those checks fail. Together they authenticate the sender and block "From"-address spoofing; confidentiality in transit is a separate concern handled by SMTP-over-TLS (hop-by-hop) or end-to-end encryption (PGP/S/MIME).
+7. Why is full-tunnel VPN preferred over split tunneling for a sensitive remote endpoint, and why is SMS a weak choice for the MFA code? 
+A split-tunneled device sits on both the trusted internal network and the hostile local one at once, so it can bridge the two and bypass the inspection a full tunnel imposes on every packet. SMS is a weak out-of-band channel because it travels in the clear and is unauthenticated (exposed to interception and SIM-swap), so SP 800-63B labels it restricted, favoring app-based or hardware authenticators.
+
+Chapter 2:
+Review questions
+1. Why does a strong Windows login password fail to protect a lost, powered-off laptop with an unencrypted disk? 
+The login only enforces authentication while Windows is running. An attacker boots a different OS (e.g., Kali from USB), mounts the unencrypted volume as files, and reads or copies data (including the SAM/SYSTEM hives) without ever invoking the Windows login.
+2. A system stores passwords as unsalted SHA-256. Name the two distinct weaknesses and the control that fixes each. 
+(1) Unsalted: identical passwords share a hash and the hash is vulnerable to rainbow tables, fixed by a unique per-password salt. (2) Fast: SHA-256 allows billions of GPU guesses per second, fixed by a slow hash with a tunable work factor (Argon2id/bcrypt/PBKDF2).
+3. Distinguish a salt from a pepper. 
+A salt is unique per password, non-secret, and stored alongside the hash to defeat precomputation and reuse detection. A pepper is a single shared secret applied to all passwords and stored separately (e.g., HSM/config) so a database-only leak cannot be cracked. A pepper supplements, never replaces, salting.
+4. Which NIST publication governs media sanitization, and what is cryptographic erase? 
+NIST SP 800-88 governs media sanitization (Clear, Purge, Destroy). Cryptographic erase is a Purge technique that destroys the encryption key so the encrypted data becomes instantly unrecoverable: fast and scalable, but only possible if the media was encrypted to begin with.
+5. Per NIST SP 800-63B, why are long passphrases preferred over short, forced-complexity passwords? 
+Each added character multiplies the keyspace, so length raises entropy far more than swapping in a symbol. SP 800-63B therefore favors length (supporting long inputs and passphrases) and breached-password screening over mandatory composition rules and forced expiration, which only push users toward predictable patterns.
+6. A vendor pitches its "proprietary, secret encryption algorithm" as a selling point. Why is that a red flag? 
+It violates Kerckhoff's principle. Trustworthy cryptography uses open, published algorithms that have survived years of public scrutiny; security must rest in the secret key, not a hidden method. "Security by obscurity" conceals weaknesses rather than removing them, and the algorithm may fail the moment it leaks, which algorithms eventually do.
+
+Chapter 3:
+Review questions
+1. A guest laptop on a flat 10.1.0.0/24 reaches the customer database. What single architectural change most directly stops this, and why? 
+Segmentation: place the guest device and the database in separate VLANs and route between them through a gateway carrying a least-privilege, default-deny ACL. The guest VLAN is permitted out to the Internet and denied to internal subnets, so the database is no longer reachable at Layer 2 or permitted at Layer 3.
+2. An attacker prepends two 802.1Q tags to a frame and reaches a VLAN they should not. Name the attack and two defenses. 
+Double-tagging VLAN hopping (ATT&CK T1599). Defenses: move the trunk's native VLAN off VLAN 1 to an unused VLAN so the inner tag has nowhere to land, disable dynamic trunk negotiation, and prune trunks to only required VLANs.
+3. Why does a stateless ACL require an explicit rule for return traffic while a stateful firewall does not? 
+A stateless ACL judges each packet independently with no memory of the connection, so reply packets must be explicitly permitted. A stateful firewall tracks connections in a state table and automatically allows the matching return traffic for a session it has already permitted.
+4. A client receives a malicious default gateway from a DHCP server you do not control. What is the attack and the switch-level defense? 
+A rogue DHCP server, which makes the attacker a man-in-the-middle. The defense is DHCP snooping: designate the legitimate server's port as trusted and drop DHCP server responses arriving on untrusted ports.
+5. Does DNSSEC keep DNS queries private? Explain what protection it actually provides. 
+No. DNSSEC provides authentication and integrity of DNS records by cryptographically signing them, defeating spoofing and cache poisoning. It does not provide confidentiality; for that you use DNS over TLS or DNS over HTTPS.
+6. On the subnet 10.1.5.0/24, how many usable host addresses are there, and which two addresses are reserved and why? 
+254 usable hosts. The /24 leaves 8 host bits (28 = 256), but 10.1.5.0 is the network identifier and 10.1.5.255 is the broadcast address (reaches every host in the broadcast domain), so 256 − 2 = 254 remain assignable.
+7. Why is hiding the SSID and filtering by MAC address weak security, and what defeats each? 
+Hiding the SSID is privacy, not security: the name is trivially recovered from the air ("security by obscurity is not a thing"). MAC filtering is defeated by MAC spoofing: an attacker overrides the factory MAC with an allowed value and walks past the filter. The durable wireless control is strong encryption (WPA2/WPA3), since the traffic is "floating in the parking lot" regardless.
+8. Contrast a virtual machine with a container, and name the analogous escape threat for each. 
+A VM virtualizes hardware and runs its own OS under a hypervisor (threat: VM escape to the hypervisor or sibling VMs). A container shares the host OS kernel and isolates only the application (threat: container breakout to the host). Both magnify sprawl, which microsegmentation helps contain, and "serverless" still runs on a provider's server.
+
+Chapter 4:
+Review questions
+1. An SSH session is fully encrypted and tshark shows only "Encrypted packet." How can a defender still detect the brute-force that preceded it? 
+Encryption hides content, not behavior. The brute-force is visible in connection metadata (a burst of short, regular connections, the rhythm of automation) and, decisively, in the host's auth.log, which records hundreds of failed logins from one IP followed by a success, written after decryption, in plaintext.
+2. Rank full-packet capture, NetFlow, and host logs for investigating an attack carried over an encrypted channel, and say why. 
+Host logs are most useful: the endpoint logs after decryption, so they hold the plaintext the wire hid. NetFlow is next: cheap metadata that survives encryption and reveals rhythm and endpoints. Full-packet capture is least useful for payload (it is just ciphertext) but retains value as ground-truth metadata and evidence.
+3. Why would a HIDS catch this attack when a NIDS on the same segment would not? 
+A NIDS sees only network traffic, which on an encrypted session is reduced to metadata: it can flag the brute-force rhythm but cannot read the session. A HIDS runs on the host, where decryption happens, so it reads auth.log and sees the failure-then-success directly.
+4. Why are centralized logging and time synchronization treated as prerequisites rather than refinements? 
+Centralization ships logs off-host so an attacker who wipes the local copy (T1070) cannot reach the authoritative one: that is log integrity. Synchronized clocks (NTP) let logs from different systems be correlated into one timeline; without agreement, the web recon and the SSH brute-force are fragments that cannot be stitched. Both are required before logs count as evidence.
+5. Distinguish signature-based from anomaly-based detection, and explain why an untuned anomaly system can be worse than none. 
+Signature detection matches known-bad patterns: precise but blind to novel attacks. Anomaly detection flags deviations from a baseline: it can catch the unknown but generates more false positives. Untuned, it floods analysts with noise until real alerts are ignored (alert fatigue), so a genuine intrusion (a false negative) slips through. Tuning trades false positives against false negatives deliberately.
+6. A TLS-inspection proxy is described as "an approved man-in-the-middle." What problem motivates it, and what does an organization give up to use it? 
+The motivating problem is the encryption paradox turned hostile: malware command-and-control increasingly hides inside TLS, and an encrypted payload cannot be inspected without decryption. The proxy terminates, decrypts, inspects, and re-encrypts traffic, mechanically identical to a man-in-the-middle attack, separated only by consent. The costs: it breaks end-to-end encryption, fails against certificate pinning, raises privacy and legal concerns, cannot touch SSH at all (a different protocol, not TLS), and inherits new risk: a proxy that fails to properly validate the upstream server's certificate, or to relay validation status to the client (per US-CERT alert TA17-075A), can silently accept a connection a browser would have refused.
+
+Chapter 5:
+Review questions
+1. A scanner reports that a host runs software affected by CVE-2021-41773 with a CVSS base score of 9.8. Which value tells you specifically how severe the flaw is, and which system maintains the underlying weakness category? 
+The CVSS score (9.8) expresses severity; the weakness category is maintained by CWE (MITRE). The CVE is only the identifier of the specific flaw, and the NVD indexes all of these together.
+2. During an authorized black-box penetration test you discover logs proving a real, prior intruder already exfiltrated payment data. What governs your next action, and what is it? 
+The rules of engagement (specifically its incident-escalation clause) govern. You stop and notify your designated point of contact rather than continuing the test, because the situation is now an active incident, not a simulation.
+3. The breach was enabled by database credentials sitting in cleartext in config.php. Name the secure-software failure and the correct remediation. 
+It is unsecured/hard-coded credentials in a file (CWE-798; ATT&CK T1552.001), an instance of the OWASP misconfiguration/secrets failure. Remediate by removing secrets from source, injecting them at runtime via a secrets manager, rotating the exposed credential, and applying least privilege to the database account.
+4. Put these incident-response actions in the correct order: patch Apache; apply a default-deny host firewall; verify the exploit now fails; delete the backdoor account. 
+Containment first (apply the default-deny host firewall), then eradication (delete the backdoor account), then recovery (patch Apache), then verification (confirm the exploit now fails). Containment limits damage before the wound is treated.
+5. Why is patching, rather than improved detection, the expected control for a known-CVE breach like ShopQuest's? 
+A published fix already existed; the host was breached purely in the patch gap. Patch and configuration management remove the opportunity entirely, whereas detection only identifies the attack after it begins. Vulnerability management eliminates the weakness; monitoring catches its abuse.
+6. A piece of malware spreads across the network with no user action, encrypts files including the network-attached backups, and demands cryptocurrency. Name the two malware characteristics at work and why their combination is especially dangerous. 
+It is ransomware (extortion via encryption) with a worm propagation mechanism (self-propagating, no human intervention). The worm reaches network-attached storage and encrypts the backups, removing the victim's ability to simply restore, which is what makes the ransomware effective rather than a nuisance. Double extortion (exfiltrating a copy before encrypting) compounds it further.
+7. A web application lets a user view their own invoice at /invoice?id=4471. Changing the value to 4472 returns another customer's invoice. Name the flaw, state the root cause, and explain why making the ID a long random string is not a real fix. 
+It is an insecure direct object reference (IDOR). The root cause is a missing access-control check: the app never verifies the logged-in user is authorized to view that specific object. A long random ID is security by obscurity: it only delays guessing, and its strength is mere keyspace arithmetic; it is not authentication. The fix is a server-side authorization check on every object request.

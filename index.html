@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cyber Exam Practice</title>
+<style>
+  :root { --ink: #111; --muted: #6b6b6b; --line: #e3e3e3; --green: #1a7f37; --green-bg: #f1f9f3; --red: #c0392b; --red-bg: #fdf3f2; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; color: var(--ink); }
+  body { font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 680px; margin: 0 auto; padding: 48px 16px 80px; }
+  h1 { font-size: 24px; font-weight: 650; margin: 0 0 4px; }
+  h2 { font-size: 20px; font-weight: 650; margin: 0 0 4px; }
+  p { margin: 0; }
+  .muted { color: var(--muted); font-size: 14px; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  .link { background: none; border: 0; padding: 0; color: var(--muted); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
+  .link:hover { color: var(--ink); }
+  .btn { background: var(--ink); color: #fff; border: 0; border-radius: 8px; padding: 11px 20px; font-weight: 550; }
+  .btn:disabled { opacity: .35; cursor: default; }
+  .btn.ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+
+  .chapters { list-style: none; padding: 0; margin: 32px 0 0; border-top: 1px solid var(--line); }
+  .chapters button { width: 100%; display: flex; justify-content: space-between; align-items: baseline; gap: 16px; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 16px 4px; }
+  .chapters button:hover .ch-title { text-decoration: underline; text-underline-offset: 3px; }
+  .ch-num { color: var(--muted); font-size: 14px; display: block; }
+  .ch-stat { color: var(--muted); font-size: 14px; white-space: nowrap; }
+
+  .back { margin-bottom: 28px; display: inline-block; }
+  .lengths { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 20px; }
+  .lengths button { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 8px 16px; }
+  .lengths button.on { border-color: var(--ink); font-weight: 600; }
+  .topics { margin-top: 36px; }
+  .topics h3 { font-size: 14px; font-weight: 600; margin: 0 0 8px; }
+  .topic-row { display: flex; justify-content: space-between; gap: 16px; font-size: 14px; padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
+  .topic-row span:last-child { color: var(--muted); white-space: nowrap; }
+  .topic-row.weak span:last-child { color: var(--red); }
+  .topic-row.strong span:last-child { color: var(--green); }
+
+  .quiz-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; color: var(--muted); }
+  .bar { height: 3px; background: #f0f0f0; margin: 10px 0 32px; border-radius: 3px; overflow: hidden; }
+  .bar div { height: 100%; background: var(--ink); width: 0; transition: width .25s; }
+  .question { font-size: 18px; font-weight: 550; margin-bottom: 22px; }
+  .options { display: grid; gap: 10px; }
+  .opt { display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+  .opt:not(:disabled):hover { border-color: #999; }
+  .opt:disabled { cursor: default; }
+  .opt b { flex: 0 0 auto; font-weight: 600; color: var(--muted); }
+  .opt.right { border-color: var(--green); background: var(--green-bg); }
+  .opt.right b { color: var(--green); }
+  .opt.wrong { border-color: var(--red); background: var(--red-bg); }
+  .opt.wrong b { color: var(--red); }
+  .opt.dim { opacity: .55; }
+  .feedback { margin-top: 22px; padding: 14px 16px; border-left: 3px solid; font-size: 15px; display: grid; gap: 8px; }
+  .feedback.good { border-color: var(--green); background: var(--green-bg); }
+  .feedback.bad { border-color: var(--red); background: var(--red-bg); }
+  .feedback strong { display: block; }
+  .actions { margin-top: 24px; display: flex; justify-content: flex-end; }
+
+  .score { font-size: 44px; font-weight: 650; margin: 20px 0 4px; }
+  .review { margin-top: 32px; }
+  .review h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
+  .review-item { padding: 14px 0; border-bottom: 1px solid #f0f0f0; font-size: 15px; }
+  .review-item p + p { margin-top: 4px; }
+  .row { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+  .foot { margin-top: 40px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+
+  <!-- Home -->
+  <section id="home">
+    <h1>Cyber Exam Practice</h1>
+    <p class="muted">Pick a chapter. Questions adapt to what you're getting wrong.</p>
+    <ul class="chapters" id="chapterList"></ul>
+  </section>
+
+  <!-- Chapter -->
+  <section id="chapter" hidden>
+    <button class="link back" data-go="home">← All chapters</button>
+    <p class="muted" id="chNum"></p>
+    <h2 id="chTitle"></h2>
+    <p class="muted" id="chSummary"></p>
+    <div class="lengths" id="lengths"></div>
+    <button class="btn" id="startBtn">Start</button>
+    <div class="topics" id="topics"></div>
+    <div class="foot"><button class="link" id="resetBtn">Reset this chapter's progress</button></div>
+  </section>
+
+  <!-- Quiz -->
+  <section id="quiz" hidden>
+    <div class="quiz-top"><span id="qCount"></span><button class="link" id="endBtn">End session</button></div>
+    <div class="bar"><div id="qBar"></div></div>
+    <p class="question" id="qText"></p>
+    <div class="options" id="qOptions"></div>
+    <div id="qFeedback"></div>
+    <div class="actions"><button class="btn" id="nextBtn" hidden>Next</button></div>
+  </section>
+
+  <!-- Results -->
+  <section id="results" hidden>
+    <p class="muted" id="rChapter"></p>
+    <div class="score" id="rScore"></div>
+    <p class="muted" id="rDetail"></p>
+    <div class="row">
+      <button class="btn" id="againBtn">Practice again</button>
+      <button class="btn ghost" data-go="home">All chapters</button>
+    </div>
+    <div class="review" id="rReview"></div>
+  </section>
+
+</main>
+
+<script>
+  // Question files call addChapter(); they load after this block.
+  const CHAPTERS = [];
+  function addChapter(ch) {
+    const questions = [];
+    for (const [topic, list] of Object.entries(ch.topics)) {
+      for (const [q, correct, ...wrong] of list) {
+        questions.push({ id: ch.id + ":" + hash(q), topic, q, options: [
+          { text: correct[0], why: correct[1], correct: true },
+          ...wrong.map(([text, why]) => ({ text, why, correct: false }))
+        ]});
+      }
+    }
+    CHAPTERS.push({ ...ch, questions });
+  }
+  function hash(s) {
+    let h = 5381;
+    for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return (h >>> 0).toString(36);
+  }
+</script>
+<script src="questions/ch1.js"></script>
+<script src="questions/ch2.js"></script>
+<script src="questions/ch3.js"></script>
+<script src="questions/ch4.js"></script>
+<script src="questions/ch5.js"></script>
+<script src="questions/ch8.js"></script>
+<script>
+  const STORE = "cyberPractice.v2";
+  const LETTERS = ["A", "B", "C", "D"];
+  const LENGTHS = [10, 25, 50, "All"];
+  const $ = id => document.getElementById(id);
+
+  // ---------- progress ----------
+  // stats[questionId] = { n: times seen, c: times correct, s: current correct streak }
+  let stats = load();
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch { return {}; }
+  }
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify(stats)); } catch {}
+  }
+  const isMastered = q => (stats[q.id]?.s || 0) >= 2;
+
+  function topicStats(ch) {
+    const map = new Map();
+    for (const q of ch.questions) {
+      const t = map.get(q.topic) || { name: q.topic, n: 0, c: 0, total: 0, mastered: 0 };
+      const s = stats[q.id];
+      t.total++;
+      if (s) { t.n += s.n; t.c += s.c; }
+      if (isMastered(q)) t.mastered++;
+      map.set(q.topic, t);
+    }
+    return map;
+  }
+
+  // Weight each question: missed ones come back often, unseen ones next,
+  // mastered ones rarely. Weak topics are boosted as a whole.
+  function weight(q, topics) {
+    const s = stats[q.id];
+    let w;
+    if (!s) w = 3;
+    else if (s.s === 0) w = 9;
+    else if (s.s === 1) w = 2;
+    else w = 0.4 / (s.s - 1);
+    const t = topics.get(q.topic);
+    const acc = (t.c + 1) / (t.n + 2);
+    return w * (0.4 + 1.6 * (1 - acc));
+  }
+
+  function pickQuestions(ch, count) {
+    const topics = topicStats(ch);
+    return ch.questions
+      .map(q => ({ q, key: Math.pow(Math.random(), 1 / weight(q, topics)) }))
+      .sort((a, b) => b.key - a.key)
+      .slice(0, count)
+      .map(x => x.q);
+  }
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // ---------- views ----------
+  let current = null;   // selected chapter
+  let length = 25;
+  let session = null;
+
+  function show(view) {
+    for (const id of ["home", "chapter", "quiz", "results"]) $(id).hidden = id !== view;
+    window.scrollTo(0, 0);
+    if (view === "home") renderHome();
+    if (view === "chapter") renderChapter();
+  }
+
+  function chapterSummary(ch) {
+    const seen = ch.questions.filter(q => stats[q.id]).length;
+    const mastered = ch.questions.filter(isMastered).length;
+    return { seen, mastered, total: ch.questions.length };
+  }
+
+  function renderHome() {
+    const list = $("chapterList");
+    list.innerHTML = "";
+    for (const ch of CHAPTERS) {
+      const { mastered, total } = chapterSummary(ch);
+      const li = document.createElement("li");
+      const b = document.createElement("button");
+      b.innerHTML = `<span><span class="ch-num"></span><span class="ch-title"></span></span><span class="ch-stat"></span>`;
+      b.querySelector(".ch-num").textContent = "Chapter " + ch.number;
+      b.querySelector(".ch-title").textContent = ch.title;
+      b.querySelector(".ch-stat").textContent = mastered ? `${mastered}/${total} mastered` : `${total} questions`;
+      b.onclick = () => { current = ch; show("chapter"); };
+      li.appendChild(b);
+      list.appendChild(li);
+    }
+  }
+
+  function renderChapter() {
+    const ch = current;
+    const { seen, mastered, total } = chapterSummary(ch);
+    $("chNum").textContent = "Chapter " + ch.number;
+    $("chTitle").textContent = ch.title;
+    $("chSummary").textContent = seen
+      ? `${total} questions · ${seen} seen · ${mastered} mastered`
+      : `${total} questions`;
+
+    const lengths = $("lengths");
+    lengths.innerHTML = "";
+    for (const n of LENGTHS) {
+      const b = document.createElement("button");
+      b.textContent = n === "All" ? `All ${total}` : `${n} questions`;
+      b.className = n === length ? "on" : "";
+      b.onclick = () => { length = n; renderChapter(); };
+      lengths.appendChild(b);
+    }
+
+    const topics = [...topicStats(ch).values()];
+    const box = $("topics");
+    box.innerHTML = "";
+    if (topics.some(t => t.n)) {
+      const h = document.createElement("h3");
+      h.textContent = "Topics (weakest first)";
+      box.appendChild(h);
+      topics.sort((a, b) => rank(a) - rank(b));
+      for (const t of topics) {
+        const row = document.createElement("div");
+        const pct = t.n ? Math.round(t.c / t.n * 100) : null;
+        row.className = "topic-row" + (pct === null ? "" : pct < 60 ? " weak" : pct >= 85 ? " strong" : "");
+        row.innerHTML = "<span></span><span></span>";
+        row.children[0].textContent = t.name;
+        row.children[1].textContent = pct === null ? "not started" : `${pct}% · ${t.mastered}/${t.total} mastered`;
+        box.appendChild(row);
+      }
+    }
+  }
+  // Sort: attempted topics by accuracy, unattempted last.
+  const rank = t => t.n ? t.c / t.n : 2;
+
+  // ---------- quiz ----------
+  function start() {
+    const count = length === "All" ? current.questions.length : length;
+    session = { ch: current, list: pickQuestions(current, count), i: 0, right: 0, missed: [] };
+    show("quiz");
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const { list, i } = session;
+    const q = list[i];
+    session.options = shuffle(q.options);
+    session.answered = false;
+    $("qCount").textContent = `Question ${i + 1} of ${list.length}`;
+    $("qBar").style.width = (i / list.length * 100) + "%";
+    $("qText").textContent = q.q;
+    $("qFeedback").innerHTML = "";
+    $("nextBtn").hidden = true;
+    const box = $("qOptions");
+    box.innerHTML = "";
+    session.options.forEach((opt, k) => {
+      const b = document.createElement("button");
+      b.className = "opt";
+      b.innerHTML = "<b></b><span></span>";
+      b.children[0].textContent = LETTERS[k];
+      b.children[1].textContent = opt.text;
+      b.onclick = () => answer(k);
+      box.appendChild(b);
+    });
+  }
+
+  function answer(k) {
+    if (session.answered) return;
+    session.answered = true;
+    const q = session.list[session.i];
+    const picked = session.options[k];
+    const correctIdx = session.options.findIndex(o => o.correct);
+    const ok = picked.correct;
+
+    const s = stats[q.id] || { n: 0, c: 0, s: 0 };
+    s.n++;
+    if (ok) { s.c++; s.s++; session.right++; } else { s.s = 0; session.missed.push(q); }
+    stats[q.id] = s;
+    save();
+
+    [...$("qOptions").children].forEach((b, idx) => {
+      b.disabled = true;
+      if (idx === correctIdx) b.classList.add("right");
+      else if (idx === k) b.classList.add("wrong");
+      else b.classList.add("dim");
+    });
+
+    const fb = document.createElement("div");
+    fb.className = "feedback " + (ok ? "good" : "bad");
+    const add = (title, body) => {
+      const p = document.createElement("p");
+      const t = document.createElement("strong");
+      t.textContent = title;
+      p.append(t, body);
+      fb.appendChild(p);
+    };
+    if (ok) {
+      add("Correct.", picked.why);
+    } else {
+      add(`${LETTERS[k]} is incorrect.`, picked.why);
+      add(`${LETTERS[correctIdx]} is correct.`, session.options[correctIdx].why);
+    }
+    $("qFeedback").appendChild(fb);
+
+    const next = $("nextBtn");
+    next.textContent = session.i === session.list.length - 1 ? "See results" : "Next";
+    next.hidden = false;
+    next.focus({ preventScroll: true });
+  }
+
+  function next() {
+    session.i++;
+    if (session.i >= session.list.length) finish();
+    else { renderQuestion(); window.scrollTo(0, 0); }
+  }
+
+  function finish() {
+    const { ch, list, right, missed } = session;
+    const done = session.answered ? session.i + 1 : session.i;
+    const total = Math.min(done, list.length);
+    show("results");
+    $("rChapter").textContent = `Chapter ${ch.number} · ${ch.title}`;
+    $("rScore").textContent = total ? Math.round(right / total * 100) + "%" : "–";
+    $("rDetail").textContent = `${right} of ${total} correct` + (missed.length ? ". Missed questions will come up more often." : ".");
+
+    const box = $("rReview");
+    box.innerHTML = "";
+    if (missed.length) {
+      const h = document.createElement("h3");
+      h.textContent = "Review what you missed";
+      box.appendChild(h);
+      for (const q of missed) {
+        const item = document.createElement("div");
+        item.className = "review-item";
+        const c = q.options[0];
+        item.innerHTML = "<p></p><p class='muted'></p><p class='muted'></p>";
+        item.children[0].textContent = q.q;
+        item.children[1].textContent = "Answer: " + c.text;
+        item.children[2].textContent = c.why;
+        box.appendChild(item);
+      }
+    }
+    session = null;
+  }
+
+  // ---------- events ----------
+  document.addEventListener("click", e => {
+    const go = e.target.closest("[data-go]");
+    if (go) show(go.dataset.go);
+  });
+  $("startBtn").onclick = start;
+  $("nextBtn").onclick = next;
+  $("againBtn").onclick = () => show("chapter");
+  $("endBtn").onclick = () => { if (session) finish(); };
+  $("resetBtn").onclick = () => {
+    if (!confirm(`Clear all progress for Chapter ${current.number}?`)) return;
+    for (const q of current.questions) delete stats[q.id];
+    save();
+    renderChapter();
+  };
+  document.addEventListener("keydown", e => {
+    if ($("quiz").hidden || !session || e.ctrlKey || e.metaKey || e.altKey) return;
+    const key = e.key.toUpperCase();
+    const idx = "1234".includes(key) ? Number(key) - 1 : LETTERS.indexOf(key);
+    if (!session.answered && idx >= 0 && idx < 4) { e.preventDefault(); answer(idx); }
+    else if (session.answered && (e.key === "Enter" || e.key === "ArrowRight")) { e.preventDefault(); next(); }
+  });
+
+  show("home");
+</script>
+</body>
+</html>

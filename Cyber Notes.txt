@@ -1,0 +1,938 @@
+3/25/2026
+- **Exit Doors**
+	- Fail-safe vs fail-secure doors
+- Duress systems and code phrases
+	- Duress code- (often with physical assets) can still open a door but will trigger an alarm
+* **Travel Safety**- data traveling with employees on their devices should be heavily encrypted (limit the amount of data you take, to the amount you actually need)
+	* Malware and Monitoring Devices- maybe bring a burner instead of your device with sensitive or important data 
+	* only do work via VPN/ cloud
+* public cloud- 
+* private cloud-
+* community cloud deployment model-
+* hybrid cloud model-
+
+* RAID- redundant array of independent disks = combining multiple physical storage drives into one logical unit to achieve some combination of **performance**, **redundancy** (fault tolerance), or **capacity** 
+* RAID 0- **Striping** — data is split across multiple drives so reads/writes can happen in parallel, boosting speed.
+* RAID 1- ***Mirroring** — data is duplicated across drives so if one fails, an identical copy exists elsewhere.
+* RAID 5- Striping with distributed parity
+* RAID 6 — Striping with double parity
+* **RAID 10 (1+0) — Mirroring + Striping**
+* **Parity** — a calculated checksum is stored separately; if a drive fails, the missing data can be _reconstructed_ from the remaining drives and the parity data. 
+
+* UPS- uninterruptible power supply
+
+8/26/2026
+* Cryptographic Foundations- PKE's/ Asymmetric encryption 
+* Nonrepudiation- users cannot deny their own actions 
+* Hash- digital fingerprint 
+* Transposition Cypher- Rearranges characters or bits of data
+* Substitution cypher- Replaces bits, characters, or blocks of information with other bits, characters, or blocks (Caesar's Cipher (character map), Keyword mixed alphabet cipher, Vigenere, simple substitution cipher) 
+* Symmetric encryption- weaknesses= key distribution problem, easily breakable (brute force), repeated letters
+
+8/31/2026
+* Vigenere cipher- encrypts every letter with its own substitution scheme
+* ROT(x)- rotate by x amount of spaces in alphabet
+* picoCTF{}- the key for CyLAB CTF flags
+* double transposition cypher- 
+* in terminal (1. wget 2. cat message 3. transpose the message using key)
+* cipher disks (spinning wheel decryption), Enigma (the typewriter looking device)
+* cipher- an algorithm to encrypt or decrypt info
+* unencrypted info = plaintext, cleartext
+* encrypted info = ciphertext 
+* key management- 
+* keyspace- set of all possible keys (key size/length- length of a key in bits)
+Ch1:
+* Passive attack types
+	* **tap or SPAN/mirror port** on a switch, or a compromised switch or router.
+	* **ARP cache poisoning**, which tricks hosts on a switched LAN into sending their traffic through the attacker, defeating the common myth that switches make sniffing impossible
+	* **rogue or evil-twin wireless access point** that clients associate with
+	* **upstream position**: a compromised gateway, an ISP, a transit provider, or a malicious neighbor in a multi-tenant cloud.
+* Active Attack types
+	* adversary-in-the-middle (AiTM, historically "man-in-the-middle"), ATT&CK
+	* Using ARP or DNS spoofing, the attacker relays a conversation while reading and altering it, or forces both sides down to weak or no encryption (a **downgrade attack**)
+* **Passive** = confidentiality loss, no modification, hard to detect (encrypt to prevent). 
+* **Active** = integrity/authenticity loss, modification possible, MITM/replay/downgrade (authenticate endpoints to prevent).
+
+* cryptographic foundations 
+	* **symmetric encryption**- Symmetric ciphers (e.g., **AES**) use one shared key to encrypt and decrypt. They are fast and protect bulk data: every secure protocol uses symmetric encryption for the actual payload. Their weakness is distribution: how do two parties agree on a shared key over a channel an attacker is watching?
+	* **asymmetric encryption**- Asymmetric (public-key) cryptography (**RSA**, **elliptic-curve**) uses a mathematically linked key pair: a public key anyone may hold and a private key kept secret. It is slow, so it is used not for bulk data but to _exchange keys_ and to _sign_: to prove identity and integrity.
+	* **Diffie–Hellman key exchange** (and its elliptic-curve form, **ECDHE**) lets two parties derive a shared secret over a public channel such that an eavesdropper who saw the entire exchange still cannot compute it.
+	* **forward secrecy**: even if the server's long-term private key is later stolen, past recorded sessions stay unreadable
+	* **cryptographic hash**- a one way fingerprint
+	* **MAC**- or **HMAC** adds a secret key so a recipient can verify a message was not altered _and_ came from someone holding the key
+	* **authenticated encryption**- how modern protocols combine encryption and integrity using AEAD modes like **AES-GCM** and **ChaCha20-Poly1305** (causes a tampered ciphertext to be rejected rather than silently decrypted)
+	* **MAC**- proves a message is intact and came from someone holding the **shared key** but because it is shared, it can't prove which party sent it. Either side could forge a message and blame the other.
+	* **Digital signature**- uses asymmetric keys to remove ambiguity (mirror image of public-key encryption)
+	* to **Sign**- the sender **hashes** a message and encrypts the **digest** with their own private key. the encrypted digest is the signature and is sent alongside the message. To verify, anyone hashes the received message, decrypts the signature with senders public key and checks that both digests match.
+	* because only the sender holds the private key, a valid signature delivers 3 guarantees- integrity (any change beaks the digest match), authentication of origin (only the private key holder could have produced it), and nonrepudiation (signer cannot deny it bc nobody else could have signed it)
+	![[Pasted image 20260901142627.png]]
+	
+	![[Pasted image 20260901143452.png]]
+	* Asymmetric crypto is slow, but it solves key distribution, so it is used _only to hand off the keys_, then the connection switches to faster _ephemeral_ symmetric session keys for the actual traffic. That is hybrid crypto, and that is TLS. "Ephemeral" just means the key doesn't last forever. 
+* **SSH/ Secure Shell**- uses 3 layers.  
+	* **transport layer** (RFC 4253) authenticates the _server_ with a host key, runs a Diffie-Hellman exchange, and turns on authenticated encryption
+	* **user-authentication layer** (RFC 4252) then authenticates the _client_, by password or, far better, by public key
+	* **connection layer** (RFC 4254) multiplexes shells, file transfer, and port forwarding over the one encrypted pipe.
+* SFTP (Secure File Transfer Protocol)
+	* A subsystem of SSH- it inherits SSH's encryption and server authentication, moving backups over SFTP
+	* NOT FTPS which is the old FTP protocol wrapped in TLS
+* TLS- Transport Layer Security 
+	* protects HTTPS, secure email, and countless APIs 
+	* TLS handshake authenticates the server with a X.509 certificate, agrees keys, and switches on authenticated encryption 
+	* TLS 1.3 is the current target (2018) it's faster, removes legacy ciphers, and makes forward secrecy mandatory
+	* HTTPS encrypts the payload, NOT the envelope: the destination IP, domain, timing, and data volume all stay visible to anyone on the path (bc the routers must must read the envelope to deliver the packet)
+	* HTTPS secures the _connection_, not the _endpoint_: a keylogger or a breach on either machine reads your data regardless of how strong the cipher was, because the data is in the clear once it arrives.
+	* **TLS-inspection proxy**- proxy terminates your "secure" session, decrypts it, inspects the payload, re-encrypts, and forwards it on, which is structurally identical to the adversary-in-the-middle attack
+* **IPsec and VPNs**- SSH and TLS protect a single application's traffic, IPsec protects traffic at the IP layer, transparently to applications
+	* **tunnel mode**- builds site-to-site or remote-access VPNs encapsulating and encrypting whole packets
+	* VPN- the right tool when you must carry many protocols across a hostile network at once
+	* VPNs- gives you the experience of being on a private network even while you sit on an untrusted one: your traffic emerges from the organization's network rather than from the coffee-shop Wi-Fi you are actually connected to.
+* **Split Tunneling**- sends only _some_ traffic (say, anything destined for corporate resources) through the encrypted VPN tunnel while the rest goes straight out the local connection.
+	* split tunnel devices- attached to the trusted internal NW and the hostile local one (bridges the two)
+	* full tunnel- forces all traffic 
+![[Pasted image 20260901183121.png]]
+* **endpoint authentication**- necessary to defeat MITM attacks 
+	* **SSH**- uses **host keys** to confirm identity. The first time you connect, the client shows its fingerprint and asks you to confirm (the trust-on-first-use (**TOFU**) model), and then stores it in `known_hosts`. On every later connection the client checks the presented key against the stored one; a mismatch aborts with a loud warning, because it may signal a MITM
+	* **TLS**- replaces first-use trust with a public-key infrastructure. A trusted **certificate authority** signs the server's certificate; your client trusts the CA, so it transitively trusts the certificate, provided the name matches, the certificate is unexpired, and it has not been revoked.
+	* **certificate pinning**- resists a fraudulently issued certificate
+	* **Certificates**- assures you only that you reached a site owned by whoever controls that _domain name_: nothing about the site's honesty or safety. Also certs are bound to a *name* not an address. 
+		* ***tracert*** reveals a sites raw IP address
+		* certificates ensure that only trusted users from a list of names are allowed access (ex.edu)
+		* Behind the scenes the browser walks a **chain of trust**: the site's **leaf certificate** is signed by an **intermediate CA**, which chains up to a **root CA** already trusted by the operating system or browser. Break any link (wrong name, expired, revoked, or an untrusted issuer) and the connection is refused.
+	* Confidentiality (encryption) and authenticity (endpoint authentication) are _separate_ guarantees.
+	* protecting private keys- keys must be inventoried, rotated, and removed on offboarding just like passwords. Critically, secrets must never sit in plaintext files. Instead use agents, secrets managers, or vaults instead
+ - **SPF** (Sender Policy Framework) lets a domain publish which IP addresses are allowed to send mail for it. The receiver checks whether the connecting server's IP is on that list: in plain terms, "is this coming from an IP owned by the company on the @ side?"
+* **DKIM** (DomainKeys Identified Mail) adds a _digital signature_ over the message using the domain's private key; the receiver verifies it with the matching public key in DNS. This is exactly the "hash it, sign with the private key" construction from _Cryptographic Foundations_: it proves the message was not altered and genuinely came from the domain.
+- **DMARC** (Domain-based Message Authentication, Reporting and Conformance) ties the two together: it tells receivers what to do when SPF/DKIM fail (none, quarantine, or reject) and where to send reports. DMARC enforcement is what turns sender authentication from advisory into a gate.
+![[Pasted image 20260901203300.png]]
+
+![[Pasted image 20260901203336.png]]
+
+![[Pasted image 20260901204254.png]]
+
+#### Ch1 Key terms:
+
+* Data in transit- Information moving across a network, as opposed to at rest or in use.
+* Forward secrecy- Property that compromise of a long-term key does not expose past sessions, achieved with ephemeral key exchange.
+* AEAD- Authenticated encryption with associated data: provides confidentiality and integrity together (e.g., AES-GCM).
+* Adversary-in-the-middle (MITM)- An active attacker who relays and can alter a conversation between two endpoints.
+* Trust on first use (TOFU)- Accepting an endpoint's key on first contact and pinning it thereafter, as SSH does with host keys.
+* PKI- Public-key infrastructure: the CAs, certificates, and trust chains that authenticate endpoints at scale.
+* SPF / DKIM / DMARC- DNS-published email controls that authenticate the sending domain, Sender Policy Framework (SPF) by IP, DomainKeys Identified Mail (DKIM) by signature, and enforce a policy on failure via Domain-based Message Authentication, Reporting & Conformance (DMARC), countering "From"-address spoofing.
+* Split tunneling- A VPN configuration that routes only some traffic through the encrypted tunnel and the rest out the local link, trading inspection and protection for bandwidth and convenience.
+* Out-of-band channel- A second, independent path used to confirm something on the primary path (e.g., an SMS MFA code); its value depends on being both separate and not easily compromised.
+* Symmetric encryption- Cryptography using one shared key (e.g., AES) to both encrypt and decrypt; fast enough to protect bulk payload data, but burdened by the problem of distributing the key over a watched channel.
+* Asymmetric (public-key) encryption- Cryptography using a linked key pair (a public key anyone may hold and a secret private key) that is slow but enables key exchange and signing without sharing a secret in advance.
+* Diffie–Hellman key exchange- A method (including its elliptic-curve form ECDHE) that lets two parties derive a shared secret over a public channel that an eavesdropper cannot reconstruct even after seeing the whole exchange.
+* MAC / HMAC- A message authentication code adds a secret key to a hash so a recipient can verify a message was unaltered and came from someone holding that key; HMAC (hash-based message authentication code) is the standard keyed-hash construction.
+* Digital signature- A value created by hashing a message and encrypting the digest with the sender's private key, which anyone can verify with the matching public key to confirm integrity and origin.
+* Non-repudiation- The assurance, provided by a digital signature's use of a private key only one party holds, that a sender cannot later deny having sent a message.
+* Certificate- An X.509 document binding a public key to a domain name and signed by a certificate authority, used in TLS to authenticate the server's identity to the client.
+* Certificate authority (CA)- A trusted third party that signs certificates; clients that trust the CA transitively trust the certificates it issues, provided the name, validity dates, and revocation status check out.
+* Chain of trust- The validation path from a server's leaf certificate up through one or more intermediate CAs to a root CA already trusted by the OS or browser; breaking any link refuses the connection.
+* **Host key**- An SSH server's identifying key pair whose fingerprint a client records on first connection and re-checks every time after, aborting loudly on a mismatch that may signal a MITM.
+* **Public-key authentication**- An SSH login method in which the client proves possession of a private key by signing a challenge, sending no reusable secret; the server stores only the public half in `authorized_keys`.
+* UNDERSTAND COMMUNICATION WITH PRIVATE VS PUBLIC KEYS 
+* **Computationally Unfeasible**- takes too much computing power to be decoded in time 
+* **security by obscurity**- the practice of protecting a system by hiding its design, features, or inner workings instead of relying on strong, proven security controls
+* **open cipher**- assume everyone knows what your cipher is because they probably do. There is a community of cryptographers who work together to produce strong "open ciphers" that you can use
+* **Key size**- determines key space and how much space you have in a brute force (2^bit size = bit space) -- calculates the total number of unique values, states, or addresses that a specific number of binary bits can represent
+* Moore's Law is the observation that ==the number of transistors on a microchip doubles approximately every two years== while the cost of computers decreases.
+
+Chapter 8: Principles of security models, designs, and systems
+* Subject- ie. user or an entity requesting to access a resource
+* Object- ie. a resource or the passive entity the subject wants to access
+* **Transitive Trust**- If a=b and b=c then a=c
+* **Closed system**- source code not exposed, doesn't integrate well, narrow interoperability, proprietary standards, possibly more secure (I.e. Apple IOS apps only built on apple)
+* **Open system**- the opposite 
+* **APIs**- Application programming interfaces allow devices to communicate with each other, transferring data, networking, (via backend). Uses protocols and programming to communicate. 
+* **API keys**- uniquely identify the caller of a resource over the internet 
+* **project identification**- identify the app or project making a call to this API
+* **project authorization**- check whether the calling app has been granted access to call the API and has enabled the API in their project
+* API keys are not as secure as AUTH tokens!
+* OPEN SOURCE- source code and internal logic is exposed to the public (bigger developer communities)
+* CLOSED SOURCE- source code and other internal logic is hidden from the public
+
+9/16/2026 
+* privacy by design 
+
+Chapter 2 Notes
+* SAM hive- stores local acct password hashes
+* SYSTEM hive- holds the key needed to decrypt local acct password's
+* impacket-secretsdump- dumps every local accounts NTLM hash, a fast, unsalted has that windows uses to represent a stored password
+* OS Credential Dumping: Security Account Manager- Attackers extract password hashes from the Windows **SAM database**, which stores **local** account credentials as NTLM hashes. The file lives at `%SystemRoot%\System32\config\SAM` and is locked while Windows runs. Its contents are encrypted with a key (the "boot key" or SysKey) kept in the SYSTEM hive.
+* salted vs unsalted: **Salt** is a random value added to a password before it is hashed, and it is stored alongside the hash.
+* **Unsalted:** the same password always produces the same hash.
+* **Salted:** the same password produces a different hash for each user.
+* **Hashcat** is a fast, open-source password-recovery tool that cracks hashes by guessing passwords, hashing each guess, and comparing it to the target. It runs on GPUs, which makes it much faster than CPU-only crackers.
+* Ex: Lost device → unencrypted disk → offline hive extraction → fast unsalted hash → wordlist crack → recovered plaintext credential. Break any single link and the chain fails.
+* **Hashing** — A one-way function that turns a password into a fixed-length string. You can't reverse it, so systems store the hash instead of the password and compare hashes at login. Fast general-purpose hashes (MD5, SHA-1, SHA-256) were built for speed, which is a weakness for passwords.
+* **Salting** — Adding a random per-user value before hashing so identical passwords produce different hashes. Defeats rainbow tables and hides password reuse.
+* **Slow hashing** — Using a deliberately expensive algorithm (bcrypt, scrypt, Argon2, PBKDF2) that takes many iterations per hash. This barely affects one honest login but massively slows an attacker making billions of guesses. Often called a "work factor" or "cost."
+* **Cracking** — Recovering the plaintext from a hash by guessing (wordlists, rules, masks, brute force) and hashing each guess until one matches — this is what Hashcat does. Speed depends on the hash type: unsalted/fast falls quickly, salted/slow resists.
+* **Credential dumping** — Extracting hashes (or plaintext) from a system, e.g. from the SAM database — the MITRE technique.
+* **Full-disk encryption (FDE)** — Encrypting the entire drive (BitLocker, LUKS, FileVault) so data is unreadable without the key. Stops the "offline mount" attack: if someone steals the disk or boots from another OS to grab the SAM file, they see only ciphertext.
+* **Passphrases** — Long, multi-word secrets ("correct horse battery staple"). Length adds far more entropy than complexity rules do, pushing brute-force and mask attacks out of practical reach.
+* **The chain, both directions:** Storage (hashing → salting → slow hashing) vs. recovery (cracking ← dumping). The two controls that break the attack: FDE stops the offline mount before dumping can happen; salted slow hashing + passphrases make any leaked hash impractical to crack.
+* **The two CISSP domains named:**
+	- **Security Architecture & Engineering** — designing the cryptographic controls (how secrets are stored and protected).
+	- **Asset Security** — classifying and handling data by its state (at rest, in use, in transit) and controlling who can reach it.
+- **SAM (Security Account Manager)** — the _storage location_. A Windows database (file + registry hive) that holds **local** account credentials on a single machine. It's the container.
+- **NTLM** — two related things:
+	- The _hash format_ stored inside the SAM (MD4 of the UTF-16 password, unsalted).
+	- An _authentication protocol_ that uses those hashes in a challenge-response exchange over the network.
+* The SAM stores passwords as NTLM hashes. When you dump the SAM, what you get out is NTLM hashes. Those hashes then feed either cracking (Hashcat `-m 1000`) or Pass-the-Hash against the NTLM protocol.
+* **Data in transit**: moving across a network (a login submitted over HTTPS, a database replication stream). Protected primarily by transport encryption such as TLS.
+- **Data at rest**: stored on a disk, SSD, backup tape, or in a database. Protected by storage encryption and access controls. _This is the state the lost laptop's data was in._
+- **Data in use**: loaded into memory and being processed by an application. The hardest to protect; addressed by memory protections, secure enclaves, and confidential-computing techniques.
+- Data classification is the process of assigning information a sensitivity label (for example _Public_, _Internal_, _Confidential_, _Restricted_) so that handling requirements can be applied consistently. Classification is what tells you a field laptop holding customer PII and admin credentials is _Restricted_ and therefore requires encryption at rest: it is the policy decision that should have driven the technical control.
+- AI turns data into an asset class of its own (**training datasets, pre-trained models, and model weights**) and the classification and integrity controls in this chapter apply to them directly.
+- Data Poisoning: tampering with the data used to _teach_ a model so it quietly learns the attacker's behavior, an integrity attack on the training set rather than on the running system. Treat a trained model as high-value intellectual property, and reach for privacy-preserving controls like **differential privacy** and data masking when models are trained on PII.
+- Data Roles:
+	- **Data owner**: accountable for the asset; sets classification (typically a business leader).
+	- **Data custodian**: implements and maintains the controls the owner requires (typically IT).
+	- **Data processor**: handles data on behalf of the owner (often a third party).
+	- **Data subject**: the individual the data describes.
+- **Handling** covers the asset's full lifecycle: marking/labeling, storage, transmission, retention, and, critically, _secure disposal_. A lost device is an unplanned end-of-life event; if the disposal control (encryption rendering the data unreadable) was never in place, the loss becomes a reportable breach.
+- A shared **team password manager** (Bitwarden, 1Password) gives everyone strong, unique passwords so no two people reuse or share a login; turn on **multi-factor authentication** everywhere it is offered; switch on the full-disk encryption already built into every laptop (BitLocker on Windows, FileVault on Mac); and build the habit of locking the screen when you walk away. 
+- operating system's login enforces... 
+	- authentication: proving who you are to a _running_ system. BUT NOT confidentiality of stored bytes. 
+		- When an attacker controls the hardware, they choose what software runs: a live USB, a removed-and-imaged drive, or a forensic dock. None of those paths ask Windows for permission.
+- "Physical access usually equals full access" is a security maxim. The countermeasure is not a stronger login: it is cryptography (encryption at rest) so that even with the bytes in hand, the attacker holds only ciphertext.
+- Cryptography: is simply changing the form of a message to hide its meaning: plaintext goes in, an algorithm transforms it under a key, and ciphertext comes out. The single most important principle is that the secret is the _key_, not the method.
+- _bits of entropy_: the number of times you’d halve the search space to pin it down/measurement for how strong a secret is.
+	- A value picked uniformly from N possibilities carries _log2N_ bits (2 to what power = N)
+	- multiplied by the number of independent words 
+	- entropy only counts if the choice is _genuinely random_. A human-picked “P@ssw0rd!” has the length but almost none of the bits. Predictability, not character count, is what the attacker exploits.
+- Classical Ciphers:
+	- **substitutes**: (replaces symbols with others) 
+	- **transposes** (rearranges symbols)
+	- Caesar cipher is the simplest substitution (shift each letter by a fixed amount)
+		- C = (P + K) mod 26
+		- P= plaintext letter in alphabet
+		- K= shift amount
+		- modulo operation (the remainder after division) is what creates the "wraparound" so that shifting Z by 1 returns to A instead of running off the alphabet
+* Modern Ciphers
+	* trade the 26-letter alphabet for bits and lean on Boolean logic: above all XOR
+		* XOR (exclusive-or: true only when two inputs differ), which is trivially reversible and underlies stream ciphers and the one-time pad.
+	* **substitution cipher** maps each letter to an arbitrary other, a far larger keyspace than Caesar's 26 shifts, but it shares a fatal flaw: the _relationship_ between letters survives encryption, so frequency analysis unravels it. English letters fall in a stable order of prevalence (_E, T, A, O, I, N, S, H, R_ lead the pack), so an analyst maps the most common ciphertext symbol to _E_ and bootstraps from there.
+	* Vigenère cipher: nests many Caesars under a repeating keyword, "polyalphabetic" substitution: encrypt `HELLO` under the key `KEY` and the two _L_s become _different_ ciphertext letters (`J` then `V`), flattening the tell-tale frequency pattern.
+		* tabula recta: 26 alphabets, each shifted one place further than the last. To encrypt a letter, find it along the _top_ row (plaintext) and slide down to the row of the _key_ letter on the left edge; the cell where they meet is the ciphertext letter
+	* transposition cipher: keeps every letter but scrambles their _order_. A columnar transposition writes the message into a grid under a keyword, numbers the columns by the keyword's alphabetical rank, then reads the columns out in that numeric order. Doing it **twice** with two different keywords is the U.S. Army's field **double transposition**
+		* Recovering it requires _both_ keywords in the right order; yet a double transposition still leaves every original letter intact, so letter-frequency counts betray it to a patient analyst. Modern block ciphers answer this by combining substitution _and_ transposition over many rounds
+* The key distribution problem: Classical ciphers are symmetric: both parties share one secret key. So how do you agree on a key when you have no secure channel to send it over? Symmetric keys also _explode_ in number: connecting _n_ people pairwise needs `n(n−1)/2` keys, so 10,000 employees is roughly 49 _million_ key pairs, churning every time someone joins or leaves. Asymmetric cryptography (Chapter 1) is the escape hatch: `2n` keys and no shared secret to smuggle.
+* **keyspace**- the set of every possible key. 
+* **brute-force attack**- simply tries key-spaces in turn; on average you find the key after searching _half_ the space. 
+*  **Key size**- DES's 56-bit key (256 keys) is now exhaustible, while AES's 128- or 256-bit key (2128–2256) is computationally infeasible to search
+* **Key size** — the _length_ of the key, measured in bits. E.g. a 128-bit AES key, a 256-bit key.
+* **Key space** — the _total number of possible keys_, which is 2 raised to the key size. A 128-bit key has a key space of 2¹²⁸ possible values.
+* **Quantum computing (threat to crypto)** — Computers using quantum mechanics that can run certain algorithms impossible on classical machines. Two of those algorithms threaten cryptography, but very unequally.
+	* **Grover's algorithm** — Speeds up brute-force _search_. It can search a key space in roughly the square root of the time, which effectively **halves a symmetric key's strength**: a 128-bit key gives ~64 bits of security against it, a 256-bit key gives ~128 bits. (Grover shrinks the _effective_ key space by taking its square root)
+		* **Symmetric cryptography** — Ciphers using one shared key (AES, ChaCha20). Only mildly threatened, because doubling the key neutralizes Grover. The passage says it "shrugs quantum off."
+	* **Shor's algorithm** — It doesn't brute-force a key space at all — it **solves the underlying math directly**. RSA rests on the difficulty of factoring large numbers; elliptic-curve rests on the discrete logarithm problem. Shor solves both efficiently on a large quantum computer, so doubling the key size doesn't help — the whole foundation collapses.
+		* **Public-key (asymmetric) cryptography** — Systems with a public/private key pair (RSA, ECC/elliptic-curve) used for key exchange and digital signatures. This is what "quakes": Shor breaks it outright.
+		* **RSA** — Public-key system based on the hardness of factoring the product of two large primes. Directly broken by Shor.
+		* **Elliptic-curve cryptography (ECC)** — Public-key system based on the elliptic-curve discrete logarithm problem; gives equivalent security to RSA with much smaller keys. Also directly broken by Shor.
+* **Where this is heading (worth knowing):** The answer to Shor is **post-quantum cryptography (PQC)** — new public-key algorithms built on math quantum computers can't shortcut. NIST standardized the first set in 2024 (ML-KEM/Kyber for key exchange, ML-DSA/Dilithium for signatures). Also relevant is **"harvest now, decrypt later"** — attackers capturing encrypted data today to decrypt once quantum machines mature, which is why PQC migration is already underway.
+* **Kerckhoff's principle**: a cryptosystem must stay secure even if everything about it _except the key_ is public. We _publish_ our algorithms and invite the world's mathematicians to attack them; strength lives in the key, never in a hidden method. An open cipher that has survived years of public scrutiny is far more trustworthy than a secret one. "Security by obscurity" is rejected outright.
+* How Ciphers are attacked:
+	* **Ciphertext-only**: only the encrypted text is available (frequency analysis lives here).
+	- **Known-plaintext**: the attacker can _see_ some plaintext and its matching ciphertext, but cannot pick it.
+	- **Chosen-plaintext**: the attacker can _submit_ plaintext of their choosing and observe the ciphertext.
+	- **Chosen-ciphertext**: the attacker can choose ciphertexts and have them decrypted.
+- **side-channel** (timing, power draw, electromagnetic leakage), **fault injection**, **replay**, and **man-in-the-middle**, attack the _implementation_ rather than the math.
+- hash function:  a one-way transformation: it maps input of any size to a fixed-size output (a digest), and it is computationally infeasible to reverse
+	- a fingerprint of data: change the input by even a single bit and the digest changes completely, while the digest itself stays a **fixed length** no matter how large the input
+	- SHA-256 digest is always 256 bits (64 hexadecimal characters); MD5 is 128 bits
+	- run `certUtil -hashfile report.txt sha256` on Windows, then change a single character in the file (capitalize one letter) and re-run; every hexadecimal digit of the digest comes out different, an instant "No Match."
+	- **avalanche effect**: is exactly what makes tampering detectable. Outputs are spread _uniformly_ across the whole space, so any one _specific_ collision is astronomically unlikely.
+	- **birthday paradox**: warns that finding _some_ matching pair is far easier than hitting a chosen target (23 people share a birthday with ~50% odds; matching _your_ birthday takes 253).
+- Encryption: reversible, given the key, ciphertext returns to plaintext. (right tool for data at rest you must read back, but not for passwords)
+- Passwords should be _hashed_, not encrypted, because the system never needs to recover the original; at login it simply hashes the supplied password and compares digests.
+- Antivirus: mostly just hashes files and compares against a library of known-malware hashes. Attackers can generate near-infinite variants of the same malware trivially (this is called **polymorphic/metamorphic malware**). Defenders would need a new signature for every single variant, which is a losing race — the signature library can never keep up. Exact-match signatures don't scale against a determined attacker, which is why layered, behavior-based defense exists.
+- Progression of password storing:
+	- **Plaintext.** The password is stored as-is. A single database leak is total compromise. Never acceptable.
+	- **Fast hash (unsalted).** Store `MD5(password)` or NTLM. Better than plaintext, but two fatal weaknesses remain: identical passwords produce identical hashes (so patterns leak and one crack covers many accounts), and the hashes are _precomputable_ via rainbow tables.
+	- **Salted hash.** A salt (a unique, random value stored alongside the hash) is mixed in before hashing. Now identical passwords hash differently, and precomputed tables are useless because the attacker would need a table per salt. Salts are _not secret_; their job is uniqueness, not concealment.
+	- **Slow (salted) hash.** Deliberately expensive functions (bcrypt, scrypt, Argon2, PBKDF2) add a tunable work factor so each guess costs measurable CPU/memory. This is current best practice and detailed under Modern Password Hashing.
+- If you see "passwords stored as SHA-256" on a certification exam, that is a _wrong_ answer for password storage: SHA-256 is a fast hash. Password storage wants a _slow, salted_ algorithm (bcrypt/scrypt/Argon2/PBKDF2). A salt stops rainbow tables; the work factor stops fast guessing.
+- **cracking**: guessing candidate passwords, hashing each candidate, and looking for a match. The attacker never reverses the hash; they _re-derive_ it from guesses. MITRE ATT&CK tracks this family as **T1110 (Brute Force)**. The defender's entire goal is to make each guess _expensive_, because the math of cracking is the math of guesses-per-second.
+- Attack Methods:
+	- **Dictionary attack.** Try a curated wordlist of likely passwords (leaked-password corpora, common words, company terms). This is what cracked the ShopQuest hash: themed passwords like `ShopQuest2024!` are _in_ these lists or trivially derived from them.
+	- **Brute force.** Try every combination in a keyspace (all 8-character mixtures, etc.). Guaranteed to succeed eventually; feasible only against short or fast-hashed passwords.
+	- **Rule-based (mangling).** Apply transformation rules to dictionary words: capitalize, append a year, swap `a→@`. This captures the predictable ways humans "complexify" a base word. `shopquest` → `ShopQuest2024!` is a few rules deep.
+	- **Hybrid.** Combine a wordlist with brute-forced suffixes/prefixes, e.g., a dictionary word plus a 4-digit number.
+	- **Rainbow tables.** Precomputed lookup tables (a time–memory tradeoff) that reverse _unsalted_ hashes almost instantly. A unique salt per password defeats them entirely.
+- Two factors set how long cracking takes: 
+	- the **size of the search space** (entropy of the password) 
+	- the **cost per guess** (the hash's speed). Defenders control both:
+		- **Raise entropy** with long passphrases (see Modern Password Hashing), each added character multiplies the keyspace.
+		- **Raise cost per guess** with a slow hash: if each guess costs 100 ms instead of 100 ns, the attacker's effective rate drops by a million-fold.
+- Salts and slow hashing solve different problems and you need both. 
+	- Salt defeats _precomputation_ (rainbow tables) and cross-account reuse; 
+	- the work factor defeats _real-time guessing_ rate. A salted-but-fast hash is still crackable; a slow-but-unsalted hash still leaks reuse and is rainbow-table-vulnerable.
+* Modern Password Hashing:
+* password hashing functions- the fix for fast-hash weakness, built to be deliberately, tunably slow.
+	* **Argon2.** Winner of the 2015 Password Hashing Competition and the modern first choice (the `Argon2id` variant is recommended). It is _memory-hard_: it forces the attacker to commit large amounts of RAM per guess, which blunts cheap GPU/ASIC parallelism.
+	- **scrypt.** The earlier memory-hard design; a solid choice where Argon2 is unavailable.
+	- **bcrypt.** Long-trusted and widely deployed; based on the Blowfish cipher with a tunable cost factor. Not memory-hard, and note its historical input length limit (commonly ~72 bytes), but a reasonable choice for many systems.
+	- **PBKDF2.** Standardized in **NIST SP 800-132** and FIPS-friendly, which makes it the right pick when regulatory validation is required. It is not memory-hard, so it needs a high iteration count to stay strong.
+- the 3 knobs:
+	- **Salt** — a unique random value per password, stored with the hash. Guarantees distinct hashes and kills rainbow tables. Best practice: at least 16 random bytes from a CSPRNG, never reused.
+	- **Work factor (cost / iterations / memory)** — the tunable expense knob. As hardware improves, you raise it. The aim is to make legitimate verification take a fraction of a second while making mass guessing prohibitive.
+	- **Pepper** — an _optional_ secret value added to all passwords, stored _separately_ from the database (e.g., in an HSM or application config), not in the same table as the hashes. A leaked database alone is then insufficient to start cracking. A pepper supplements salting; it never replaces it.
+- **NIST SP 800-63B** (Digital Identity Guidelines) reframes good password practice around _length over forced complexity_:
+	- Allow long passwords (support at least 64 characters) and the full range of characters, including spaces: this enables passphrases.
+	- Screen new passwords against lists of known-compromised and common values (block `ShopQuest2024!`-style choices).
+	- _Do not_ impose arbitrary composition rules (no mandatory symbol-and-uppercase mixes) and _do not_ force periodic expiration without cause: both push users toward predictable patterns.
+	- Store verifiers using a salted, computationally intensive hash. The **OWASP Password Storage Cheat Sheet** concurs and orders the choice as Argon2id first, then scrypt, bcrypt, and PBKDF2.
+- Length beats complexity because each extra character multiplies the keyspace, while a swapped symbol adds little. A 4–5 word passphrase like `correct-harbor-anchor-velvet` is both easy to recall and astronomically harder to crack than `ShopQuest2024!`, even before the work factor is applied.
+- **Argon2id** is memory-hard (anti-GPU/ASIC)
+- **PBKDF2** is the FIPS-approved password KDF or Key Derivation Function (specified in SP 800-132; run it inside a FIPS 140-3-validated module where validation is required)
+- a **salt** is unique and non-secret 
+- a **pepper** is shared, secret, and stored separately.
+- FIPS- federal info processing standards
+	- **FIPS 140-2 / 140-3** — The big one for crypto. It certifies **cryptographic modules** (the hardware/software that does encryption). If a product is "FIPS 140-2 validated," its crypto has been tested and approved for government use. 140-3 is the current version replacing 140-2. It defines four **security levels** (1–4) by how much physical tamper-resistance the module has.
+	- **FIPS 199** — Categorizes information systems by impact level (**low / moderate / high**) based on the damage from a loss of confidentiality, integrity, or availability. Foundational to the RMF.
+	- **FIPS 200** — Minimum security requirements for federal systems; pairs with FIPS 199 and points to the NIST 800-53 controls.
+	- **FIPS 197** — The standard that defines **AES**.
+- **NIST SP 800-111** provides the canonical guidance on storage encryption for end-user devices.
+- levels of encryption at rest:
+	- **Full-disk encryption (FDE).** The entire volume is encrypted; the data is unreadable until a key unlocks it at boot. **BitLocker** (Windows) and **LUKS/dm-crypt** (Linux) are the standard implementations. With FDE enabled, booting the lost laptop from a Kali USB yields only ciphertext: the offline hive extraction in _The Case_ becomes impossible.
+	- **File/folder encryption.** Specific files or directories are encrypted (e.g., Windows EFS, encrypted containers). Useful for selective protection but leaves unencrypted areas exposed.
+	- **Database encryption.** Transparent Data Encryption (TDE) encrypts database files on disk; **column/field-level encryption** protects specific sensitive fields (card numbers, SSNs) even from someone with broad database access.
+- encryption is only as strong as its key management
+- TPM: trusted platform module- a tamper-resistant hardware chip, solves this for FDE by sealing the disk key to the specific machine and its boot state, releasing it only to a verified, unmodified boot. Larger environments centralize keys in a **key management service (KMS)** or a hardware security module (HSM), a dedicated, often **FIPS 140-3**-validated device for generating and guarding keys.
+	- A TPM alone can auto-unlock at boot, which protects against drive removal but not against a powered-on stolen laptop. Pairing the TPM with a boot PIN or passphrase (pre-boot authentication) closes that gap
+- **NIST SP 800-88** defines three sanitization levels:
+	- **Clear** — logical overwrite that resists casual recovery.
+	- **Purge** — stronger techniques (including _cryptographic erase_: destroy the key and the encrypted data is instantly unrecoverable) that resist laboratory attacks. 
+		- **Cryptographic erase** (destroying the key) is a fast, scalable Purge method, but it only works if the data was encrypted in the first place.
+	- **Destroy** — physical destruction (shred, incinerate, disintegrate) when media must never be reused.
+- **NIST Special Publications**:
+	- **SP 800-63B — Digital identity / authentication:** Password rules — length over complexity, breach screening, and salted slow hashing of verifiers.
+	- **SP 800-132 — Password-based key derivation:** PBKDF2 construction, with salt and iteration-count guidance.
+	- **SP 800-111 — Storage encryption for end-user devices:** Full-disk / file encryption choices for laptops like the lost device.
+	- **SP 800-88 — Media sanitization:** Clear / Purge / Destroy, including cryptographic erase.
+	- **SP 800-175B — Cryptographic mechanisms guidance:** Selecting approved algorithms and using cryptography correctly.
+- **OWASP Password Storage Cheat Sheet**: the practitioner-level companion to NIST: concrete algorithm ordering (Argon2id → scrypt → bcrypt → PBKDF2), parameter starting points, and the salt/pepper guidance from _Modern Password Hashing_. OWASP gives implementation specifics where NIST sets the policy frame.
+- MITRE ATT&CK: provides a shared vocabulary for adversary behavior. Two techniques anchor this chapter:
+	- **T1003.002 — OS Credential Dumping: Security Account Manager (SAM).** Exactly ShopQuest's `secretsdump` against the SAM and SYSTEM hives.
+	- **T1110 — Brute Force.** The hashcat cracking step, including its dictionary and rule-based sub-techniques.
+* ***ShopQuest Attack Chain: Threats and Controls**: 
+	- **Lost/stolen device with unencrypted disk** — Attacker mounts the drive from another OS; no login needed. **Control:** Full-disk encryption (BitLocker / LUKS) with TPM + PIN. _(SP 800-111; FIPS 140-3)_
+    - **Offline credential dumping** — `secretsdump` pulls hashes from the SAM + SYSTEM hives. **Control:** Encryption at rest makes the hives unreadable; least-privilege local accounts. _(ATT&CK T1003.002)_
+    - **Rainbow-table / precomputation** — Unsalted hashes reversed with prebuilt lookup tables. **Control:** Unique per-password salt. _(SP 800-63B; OWASP)_
+    - **Fast-hash GPU guessing** — Billions of NTLM/MD5 guesses per second. **Control:** Slow hash with a tunable work factor (Argon2id / bcrypt / PBKDF2). _(SP 800-63B; SP 800-132)_
+    - **Dictionary / rule-based cracking** — Common or themed passwords fall in seconds. **Control:** Passphrases, breached-password screening, block common terms. _(SP 800-63B; ATT&CK T1110)_
+    - **Database leak exposes hashes** — Attacker starts cracking the dump immediately. **Control:** Pepper stored separately (HSM / config); database encryption. _(OWASP; FIPS 140-3)_
+    - **Insecure disposal / decommission** — Data recovered from retired or lost media. **Control:** Cryptographic erase; Purge / Destroy sanitization. _(SP 800-88)_
+* ***Defense in depth — no single row saves you:**
+	- FDE stops the dump
+	- Salting stops precomputation
+	- Slow hashing stops guessing
+	- Passphrases raise entropy
+	- A separate pepper survives a DB leak
+* Domain 3 — Security Architecture & Engineering (primary)
+	- **Cryptographic lifecycle and methods** — classical ciphers through modern symmetric and asymmetric encryption, hashing vs. encryption, keyspace and key size, and key-derivation functions.
+	- **Cryptanalytic attacks** — frequency analysis; the known-plaintext, chosen-plaintext, and chosen-ciphertext models; dictionary, brute force, rainbow tables, and side-channel attacks.
+	- **Key management** — generation, storage, TPM, HSM, and FIPS 140-3 module validation.
+	- **Security capabilities of systems** — trusted hardware (TPM) and encryption services built into platforms.
+* Domain 2 — Asset Security (secondary)
+	- **Data classification and ownership** — labeling the field laptop's data as Restricted; owner vs. custodian roles.
+	- **Handling requirements** — marking, storage, and protection of data at rest across its lifecycle.
+	- **Data states** — in transit, at rest, in use — and selecting controls per state.
+	- **Secure provisioning and disposal** — media sanitization (SP 800-88) and cryptographic erase.
+* Supporting domains
+	- **Domain 5 (Identity & Access Management)** — authentication, password policy, and credential management touch SP 800-63B.
+	- **Domain 7 (Security Operations)** — incident response when a device is lost; forensic handling of the recovered hashes.
+
+**Chapter 2 Key Terms:**
+- **Hash function** — A one-way transformation producing a fixed-size digest; infeasible to reverse, used to store password verifiers.
+- **Salt** — A unique, random, non-secret value mixed into a password before hashing to defeat rainbow tables and reuse detection.
+- **Work factor** — A tunable cost parameter (iterations/memory/cost) that makes each hash deliberately expensive to compute.
+- **Pepper** — An optional shared secret added to all passwords and stored separately from the hash database (e.g., in an HSM).
+- **Full-disk encryption (FDE)** — Encryption of an entire volume so stored data is unreadable until a key unlocks it at boot.
+- **Trusted Platform Module (TPM)** — A tamper-resistant hardware chip that seals encryption keys to a machine and its verified boot state.
+- **Keyspace** — The set of all possible keys for a cipher; brute force searches it and succeeds after about half on average, so key size sets the time-to-break.
+- **Kerckhoff's principle** — A cryptosystem must stay secure even if everything but the key is public: strength lives in the key, never in a secret method ("no security by obscurity").
+- **Plaintext / ciphertext** — Plaintext is the readable message that goes into a cipher; ciphertext is the scrambled output that comes out after an algorithm transforms it under a key.
+- **Cryptography** — Changing the form of a message to hide its meaning, transforming plaintext into ciphertext under a key so only key-holders can recover it.
+- **Substitution vs. transposition** — The two primitive cipher operations: substitution replaces symbols with others, while transposition keeps every symbol but rearranges their order.
+- **Frequency analysis** — Cryptanalysis that breaks simple substitution ciphers by matching the most common ciphertext symbols to a language's most common letters (E, T, A, O… in English).
+- **XOR** — The exclusive-or Boolean operation (true only when two inputs differ); trivially reversible, it underlies stream ciphers and the one-time pad.
+- **Brute-force attack** — Trying every possible key in turn until one works; on average it succeeds after searching half the keyspace, so key size sets the time-to-break.
+- **Computationally infeasible** — A task possible in principle but requiring so much time or computing power that it cannot be done in practice: the security basis of large keyspaces and one-way hashes.
+- **Avalanche effect** — The property of a good hash where changing a single input bit flips roughly half the output bits, making the digest a tamper-evident fingerprint.
+- **Birthday paradox** — The counterintuitive math showing that finding some matching pair (a collision) is far easier than hitting a chosen target, so an n-bit hash gives only n/2 bits of collision resistance (128-bit for SHA-256), since finding any collision costs about the square root of a full search.
+- **Rainbow table** — A precomputed lookup of hashes for common passwords that cracks unsalted fast hashes instantly; a unique per-password salt defeats it.
+- **Cryptographic erase** — A Purge-level sanitization (NIST SP 800-88) that destroys the encryption key so the encrypted data becomes instantly and permanently unrecoverable.
+- **Hardware security module (HSM)** — A dedicated, often FIPS 140-3-validated device for generating and guarding cryptographic keys separately from the data they protect.
+- **Data states** — The three conditions data can be in (at rest, in transit, and in use), each requiring its own protective control.
+- **Data classification** — Assigning information a sensitivity label (e.g., Public, Internal, Confidential, Restricted) so handling and protection requirements apply consistently.
+
+CH 3:
+* OSI Model:
+	* **Layer 7 — Application:** the protocols users and programs speak: HTTP, DNS, SMTP, SSH.
+	- **Layer 6 — Presentation:** data representation, encoding, and encryption formatting (e.g., TLS is often placed here or spanning 5–6).
+	- **Layer 5 — Session:** establishing, managing, and tearing down dialogs between endpoints.
+	- **Layer 4 — Transport:** end-to-end delivery, ports, and reliability: TCP and UDP, with port numbers that identify services.
+	- **Layer 3 — Network:** logical addressing and routing between networks: IP, ICMP, and routers.
+	- **Layer 2 — Data Link:** framing and local delivery using MAC addresses: switches, Ethernet, and VLAN tagging.
+	- **Layer 1 — Physical:** the bits on the medium (cabling, connectors, radio, voltages), including physical limits such as copper Ethernet's ~100-meter segment length, beyond which a repeater regenerates the signal to extend the run.
+- **The TCP/IP stack**: The model the Internet actually runs on,  collapses the seven layers into four: 
+	- Application (OSI 5–7)
+	- Transport (OSI 4)
+	- Internet (OSI 3)
+	- Link or Network Access (OSI 1–2)
+- Encapsulation: As data descends the stack, each layer wraps it in its own header. Your HTTP request becomes a TCP segment, then an IP packet, then an Ethernet frame, then bits.
+- Ports:
+	- IP addy gets a packet to the right machine
+	- Port number: tells that machine which service should answer
+	- socket: IP address + a port (the full coordinates of one end of a conversation)
+	- Ports: 0-65535
+		- Well known: (0-1023): reserved for standard services
+		- registered ports: (1024-49151): assigned to particular Apps
+		- dynamic/ephemeral ports: (49152-65535): a client borrows at random forthe return half of a connection
+	- Common Ports:
+		- **FTP (21/TCP):** Transfers files. Cleartext, so replace it with SFTP (22) or FTPS (990).
+		- **SSH/SFTP (22/TCP):** Encrypted remote shell and file transfer. Secure, and the standard for remote administration.
+		- **Telnet (23/TCP):** Remote shell. Cleartext and obsolete; replaced by SSH.
+		- **SMTP (25/TCP):** Relays email between mail servers. Add TLS, and submit mail on 587 (STARTTLS) or 465.
+		- **DNS (53/UDP + TCP):** Resolves names to IP addresses. Spoofable, so harden it with DNSSEC and DoH/DoT.
+		- **DHCP (67 server, 68 client/UDP):** Auto-assigns IP, gateway, and DNS to clients. Unauthenticated, so defend it with DHCP snooping.
+		- **HTTP (80/TCP):** Serves web pages. Cleartext, so redirect to HTTPS.
+		- **POP3 (110/TCP):** Downloads email to one device and removes it from the server. Cleartext, so use POP3S (995) or TLS.
+		- **IMAP4 (143/TCP):** Reads email kept and synced on the server. Cleartext, so use IMAPS (993) or TLS.
+		- **HTTPS (443/TCP):** Web traffic over TLS. The secure default for the web.
+		- **SMB (445/TCP):** Windows file and printer sharing. Never expose it to the internet; keep it on the LAN or a VPN.
+		- **RDP (3389/TCP):** Windows remote desktop. A brute-force target, so gate it behind a VPN or gateway.
+- Controls/Layers:
+	- **Layer 2 (Data Link):** Sees MAC addresses and VLAN tags. Typical controls are switches, port security, and VLANs.
+	- **Layer 3 (Network):** Sees IP source and destination. Typical controls are routers and stateless ACLs.
+	- **Layer 4 (Transport):** Sees ports and TCP state. The typical control is a stateful firewall.
+	- **Layer 7 (Application):** Sees the full payload and requests. Typical controls are proxies, WAFs, and IDS/IPS.
+- Number Systems & Network Addressing:
+	- binary: computers count in binary (a string of 1s and 0s)
+	- byte: 8 bits = 1 byte, also called an octet in networking
+		- a byte holds 2^8  = 256 possible values (0-255)
+	- hexadecimal: because long binary strings are unreadable we compress them into hexadecimal. Digits run 0-9 then A-F.  Each hex digit encodes 1/16 values, so a pair of hex digits 16^2 = 256 (1 byte). 
+	- dotted-decimal notation: IPv4 addresses are written this way. Four octets separated by dots. (192.168.1.10) Each Octet = 1 byte (0-255). The entire address is 32 bits long. 
+	- IPv6 addresses are written in hexadecimal: 128 bits.
+- MAC, OUI, L2 vs L3:
+	-  MAC address (Media Access Control): is a 48-bit physical address burned into a device's network interface card at the factory; it operates at Layer 2 and never changes as the packet crosses the local network.
+	- OUI (Organizationally Unique Identifier): a vendor prefix assigned to the manufacturer and the first half of the MAC address.
+	- IP address: a logical Layer 3 address _assigned by the network_ and used to route between networks. MAC says _which physical device_ on this wire; IP says _which network and host_ anywhere in the world.
+- IP addressing & Subnetting:
+	- IP address splits into a **network** portion and a **host** portion; the subnet mask marks the boundary.
+	- CIDR notation: `192.168.1.0/24` means the first 24 bits identify the network, leaving 8 bits (28 = 256) for hosts. But you do not get 256 usable hosts: the all-zeros host address (`.0`) is the network identifier and the all-ones host address (`.255`) is the broadcast address: the address that reaches every host in the broadcast domain at once. That leaves 254 assignable addresses.
+- Spoofing:
+	- IP spoofing: forging the source IP in a packet to impersonate a trusted host or hide the origin of an attack. 
+		- Ingress filtering (covered under Routing & Access Control) that drops inbound packets claiming an internal source is the standard counter.
+	- **MAC spoofing**: overriding the factory MAC with a chosen value, defeating MAC-address allow-lists. This is why MAC filtering is weak: a spoofed legitimate MAC walks straight past the filter
+	- **SSID broadcast**: the SSID (the wireless network name) is broadcast by default; turning the broadcast off hides the name from casual view but is trivially recovered by anyone watching the air. Hiding the SSID is a _privacy_ feature, not a security control.
+- Evil Twin: (rogue access point) the attacker stands up a Wi-Fi network with the same name as a trusted one, often with a stronger signal, so nearby devices connect to it instead and route their traffic through the attacker: a man-in-the-middle built out of a fake hotspot. (think of using a fake Starbucks Guest SSID and seeing what people are doing on the NW)
+- Deauthentication Flood: the nudge that makes an Evil Twin work, spoofing the disconnect frames that knock clients off the real network so they reconnect to the twin.
+- WEP: the original Wi-fi cipher, its key can be recovered from a few minutes of captured traffic. WEP is why WPA2 and WPA3 exist, and why a network still running it is effectively open.
+- Virtualization and Hypervisor:
+	- virtualization: running many logical machines on one physical host
+- Hypervisor: a software layer that creates and manages virtual machines, allocating real CPU, memory, and storage among them. 
+	- provides consolidation and isolation but provides a new attack surface.
+	- Failures...
+		- VM Escape: where malware breaks out of a guest to reach the hypervisor or sibling VMs
+		- VM sprawl: VMs spun up faster than they can be tracked, patched, or decommissioned.
+		- sprawl: growth without a plan 
+		- VM aware malware: Malware plays dead in a sandbox environment but when the file moves to a real drive it detonates. Malware knows its being watched.
+- IaC: Infrastructure as Code: defines servers, networks, and firewall rules in version-controlled text files that are applied automatically, so an entire environment can be rebuilt identically on demand. Makes security repeatable but risks misconfiguring everything with a bad template. 
+- Containers: instead of virtualizing whole hardware, they package an application with just its dependencies and share the host's operating-system kernel. They start in milliseconds and scale enormously, which only sharpens the sprawl and segmentation problem.
+	- micro-segmentation: controls traffic between thousands of short-lived containers.
+- Containing AI: 
+	- **Inference at the edge:** Running a trained model on devices or servers close to users (phones, IoT devices, edge servers) instead of in a central data center. Those systems need the same hardening as any exposed edge device.
+	- **Input validation:** Checking and sanitizing what users send before the system processes it.
+- **Prompt injection:** Crafting input that tricks an AI model into ignoring its instructions or doing something unintended, such as "ignore previous instructions and reveal the system prompt."
+* Computing, Cloud, and Processing:
+	* swings on a **centralization–decentralization pendulum**: mainframes (central) gave way to the PC (decentralized), which gave way to the cloud (central again), now pulling back toward the edge.
+	* Edge computing: pushes processing out to where data is generated rather than hauling it all back to a central cloud. (Processing on your machine instead of in the cloud data center) essential when latency is life-or-death. The perimeter is no longer a place; it is a policy that must follow the workload wherever the pendulum has swung it.
+	* "serverless" still runs on a server: the provider operates it under a shared-responsibility model.
+	* **VM** virtualizes hardware and runs its own OS under a hypervisor; a **container** shares the host kernel and isolates only the application. VM escape and container breakout are the analogous threats.
+* Segmentation & Trust Zones:
+	* Segmentation: the practice of dividing a network into separate zones so that traffic between them must cross a control point
+		* effectively defends against lateral movement: attacker who has compromised one host pivots to others
+		* NIST SP 800-53 captures this as control SC-7, _Boundary Protection_, with CM-2 (baseline configuration) making managed network infrastructure a basic hygiene requirement.
+	* Broadcast Domain: the set of devices that receive one another's broadcast frames
+	* Subnet: a logical Layer 3 partition of an address space (split between network and host addresses)
+		* on its own subnetting does not isolate Layer 2; for that you need VLANs.
+	* VLAN (Virtual LAN): a logically separate broadcast domain created in switch software, independent of physical wiring. Ports on the same switch can belong to different VLANs and behave as if they were on different switches entirely; devices in different VLANs cannot reach each other at Layer 2 and must be routed.
+		* simple way to do this: separate guest and private Wi-Fi
+	* DMZ (demilitarized zone): a screened subnet; a segment that hosts Internet-facing services (web, mail, DNS) isolated from the internal network by firewalls on both sides. 
+		* The principle: anything an outsider can reach should not sit beside anything an outsider must never reach.
+	* Micro-segmentation: pushes segmentation down to the individual workload, enforcing policy host-by-host rather than zone-by-zone.
+		* instead of server VLAN communicating with DB VLAN now its a specific app server may reach a specific DB port, and nothing else can.
+		* NW layer least privilege and zero trust design
+		* once inside a flat NW, lateral movement becomes easy, blast radius is the entire NW, and a single breach can become a disaster.
+* Routing & Access Controls:
+	* once a NW is split into VLANs, traffic that needs to cross zones must be routed
+	* segmentation creates boundaries and routing & access control decide what is allowed through
+	* routing: given a packets destination IP, a router decides which interface the packet is sent to via routing table.
+	* Routing Table: a list of known destination NWs, each paired with a next hop and an outgoing interface. The router checks the destination against every entry and applies longest-prefix match.
+		* Longest-Prefix Match: the most _specific_ network wins. A packet for `203.0.113.40` that matches both `203.0.113.0/24` and `203.0.0.0/16` takes the `/24` route, because a longer prefix is a more precise match. If nothing matches, the default route carries the packet onward.
+		* Default Route: 0.0.0.0 /0 That default route is exactly what a device's _default gateway_ setting points at: the next hop for everything not on the local network.
+			* 10.20.0.0/24 (directly connected, eth0):** The local LAN. Traffic is delivered straight to the host.
+			* **10.20.9.0/24 (next hop 10.20.0.2, eth0):** The server VLAN. Traffic is handed to the internal router.
+			- **0.0.0.0/0 (next hop 10.20.0.1, eth0):** The default route. Everything else goes to the edge router.
+	- Traceroute: or Tracert on windows, shows hop decisions. Sends packets with deliberately small but increasing TTL. 
+		- the first packet carries TTL 1, so the first router decrements it to zero, discards it, and returns an ICMP "time-exceeded" message that reveals its address
+		- TTL 2 exposes the second router, and so on.
+	- Default Gateway: Your local router, the first stop for any traffic leaving your local network.
+	- **Carrier-grade NAT (CGNAT):** An ISP puts many customers behind one shared public IP address to conserve IPv4 addresses. It's like your home NAT, but at the ISP's scale.
+		- **100.64.0.0/10:** An IP range reserved specifically for CGNAT. It's neither private (like 192.168.x.x) nor public; it's shared address space inside the ISP's network. Seeing it at hop 2 tells you you're behind CGNAT.
+	* ***ISP (Internet Service Provider):** The company providing your internet connection.
+	* **Internet exchange (IXP):** A physical location where ISPs and networks connect directly to swap traffic, instead of routing it through third parties.
+	* **Edge router:** The router at the boundary of an organization's network, where it meets the internet.
+	* **ICMP (Internet Control Message Protocol):** A protocol for network diagnostics and error messages, used by ping and traceroute. Firewalls often block it to hide internal network structure, which is why the final hops go dark.
+	* router-on-a-stick: a single physical router interface carries all VLANs over a trunk and presents a subinterface for each, acting as the default gateway for that VLAN.
+	* Access Control List (ACL): an ordered list of permit/deny rules matched against packet header fields: source and destination IP, protocol, port. 
+		* ACLs are _stateless_: each packet is judged on its own, with no memory of the connection it belongs to. That makes them fast and simple but allow a reply you must explicitly permit the return traffic. 
+		* rules are evaluated top to bottom and the _first match wins_, then processing stops. A permit rule placed below a broader deny will never fire. Sequence is a control, not just a formality.
+	* Stateful firewall: tracks connections in a state table. When it permits an outbound TCP connection it automatically allows the matching return packets, because it remembers the session.
+		* NIST SP 800-41 (Guidelines on Firewalls and Firewall Policy)
+		* Stateful inspection is more intelligent but heavier; many designs use both:  ACLs at routers and stateful firewalls at the perimeter and between high-value zones.
+	* Default Deny: permit only what is explicitly required and block everything else. Most ACL implementations end with an implicit deny-all, so the rules you write are the only traffic allowed.
+	* Ingress filtering: inspects traffic entering a zone, for example dropping inbound packets that claim an internal source address (a spoofing indicator).
+	* Egress filtering: inspects traffic leaving a zone, blocking outbound connections a segment should never make, which contains malware command-and-control and data exfiltration. Widely under-applied!
+* Secure NW Design:
+	* Defense in depth: layers independent controls so that no single failure exposes the asset: a firewall, plus segmentation, plus host hardening, plus monitoring.
+	* Choke Point: funnel traffic through a small number of well-instrumented gateways to filter and log traffic.
+	* IEEE 802.1Q: standard allowing VLAN tags to travel over a trunk, inserts a 4-byte tag into the Ethernet frame carrying a 12-bit VLAN ID.
+	* VLAN hopping: an attack that lets a host send traffic into a VLAN it should not reach. MITRE ATT&CK tracks it as T1599, Network Boundary Bridging.
+		* **Switch spoofing:** an attacker's port negotiates itself into a trunk (via dynamic trunking) and then receives all VLANs. Defense: disable dynamic trunk negotiation and hard-set access ports.
+		* **Double tagging:** the attacker prepends two 802.1Q tags; the first switch strips the outer tag and forwards the frame to the inner VLAN. This abuses the native VLAN: the one VLAN whose frames cross the trunk untagged.
+			* **move the native VLAN off VLAN 1** to an unused, dead VLAN so double-tagging has nothing to land on; disable auto-negotiation of trunks; prune trunks to only the VLANs they must carry; and shut down unused ports.
+	* **Network Access Control (NAC):** authenticates and inspects a device _before_ granting it network access, commonly using IEEE 802.1X port authentication. A device that fails identity or posture checks can be denied, quarantined, or dropped into a remediation VLAN.
+	* **Zero trust**: defined in NIST SP 800-207 (Zero Trust Architecture), abandons the idea of a trusted internal network. Its premise: _never trust, always verify_.
+* NW Services:
+	* **Dynamic Host Configuration Protocol (DHCP)**: automatically assigns each device an IP address, subnet mask, default gateway, and DNS server. The address is leased and returned to the addy pool once your connection is over.
+		* **DHCP starvation:** an attacker floods the server with bogus requests using spoofed MAC addresses until the address pool is exhausted, denying service to legitimate hosts.
+		* **Rogue DHCP server:** the attacker stands up their own DHCP server and answers faster than the real one, handing clients a malicious default gateway or DNS server, turning the attacker into a man-in-the-middle.
+		* DHCP Snooping: switch level defense, which designates trusted ports (where the legitimate server lives) and drops DHCP server responses arriving on untrusted ports. It also builds a binding table that offers dynamic ARP inspection.
+	* Domain Name System (DNS): Translates human readable names into IP addresses. Bc nearly every connection begins with DNS lookup, an attacker who controls name resolution controls where traffic goes. Two related attacks:
+		* DNS spoofing: forging a DNS response so the victim resolves a name to an attacker-controlled address
+		* Cache Poisoning: injecting a forged record into a resolver's cache, so the lie is served to every client that queries it until the record expires.
+	* DNSSEC (DNS Security Extensions): signs DNS records with cryptographic keys so a resolver can verify that an answer genuinely came from the authoritative zone and was not altered in transit. DNSSEC provides authentication and integrity, not confidentiality. DNS over TLS or DNS over HTTPS provides confidentiality.
+* **Standards & Frameworks**: NIST CSF tells you _what_ good looks like, SP 800-53 turns it into a _prioritized_ catalog of controls, IEEE defines the _mechanism_, and ATT&CK/D3FEND connect each control to the _threats_ it actually counters.
+	* **NIST SP 800-41**, _Guidelines on Firewalls and Firewall Policy_ — firewall types, placement, and rule base design, including the default-deny posture.
+	* **NIST SP 800-207**, _Zero Trust Architecture_ — the authoritative definition of zero-trust tenets and components.
+	* **NIST SP 800-53**, control **SC-7 (Boundary Protection)** — the control-catalog basis for monitoring and controlling communications at managed interfaces; the formal home of "segment the network."
+		* **SC-7: Boundary Protection**, places and defends the control points between zones
+		* **CM-2: Baseline Configuration**, and **CM-7: Least Functionality**, hold network devices to a known, minimal, auditable state. 
+	* **IEEE 802.1Q**: defines VLAN tagging: the frame format and trunking behavior that make segmentation possible on shared switches.
+	* ATT&CK technique **T1599 (Network Boundary Bridging)**: describes adversaries bypassing network segmentation, of which VLAN hopping is an example.
+	* **D3FEND**: knowledge graph names the defensive countermeasure as **Network Isolation**: segmentation, broadcast isolation, and traffic filtering.
+* Threats and Controls:
+	* **Lateral movement across a flat network**
+		- Layer: 2–3
+		- Control: VLAN segmentation, trust zones
+		- Anchor: SC-7 Boundary Protection; CM-7 Least Functionality
+	* VLAN hopping (switch spoofing, double tagging)
+		- Layer: 2
+		- Control: Move native VLAN off VLAN 1; disable DTP; prune trunks
+		- Anchor: IEEE 802.1Q; MITRE ATT&CK T1599
+	* ***Unauthorized inter-zone access**
+		- Layer: 3–4
+		- Control: Least-privilege ACLs; default-deny
+		- Anchor: NIST SP 800-41
+	* **Return-traffic and spoofing abuse**
+		- Layer: 4
+		- Control: Stateful firewall; ingress/egress filtering
+		- Anchor: NIST SP 800-41
+	* ***Rogue DHCP / DHCP starvation**
+		- Layer: 2
+		- Control: DHCP snooping; port security
+		- Anchor: SC-7 Boundary Protection
+	* ***DNS spoofing / cache poisoning**
+		- Layer: 7
+		- Control: DNSSEC; trusted resolvers
+		- Anchor: DNSSEC
+	* ***Unmanaged / unauthorized device admission**
+		- Layer: 2
+		- Control: NAC (802.1X); posture checks
+		- Anchor: SC-7 Boundary Protection
+	* ***Implicit internal trust**
+		- Layer: All
+		- Control: Zero trust; micro-segmentation
+		- Anchor: NIST SP 800-207
+
+**CHAPTER 3 KEY TERMS:**
+* Flat Network: a network with no internal segmentation, where every host can reach every other host without crossing a control point
+* Blast Radius: the set of systems an attacker can reach from a single initial foothold; reduced by segmentation
+* VLAN: Virtual Local Area Network: a logically separate broadcast domain created in switch software, independent of physical wiring (IEEE 802.1Q)
+* VLAN hopping: an attack that sends traffic into a VLAN it should not reach, via switch spoofing or double tagging; ATT&CK T1599.
+* Default-deny: an access policy that permits only explicitly required traffic and blocks everything else by default.
+* Zero Trust: a model that grants no implicit trust by network location and verifies every request per resource (NIST SP 800-207).
+* MAC Address / OUI: A 48-bit Layer 2 Media Access Control (MAC) physical address factory-assigned to a NIC; its first half,  the Organizationally Unique Identifier (OUI), is a vendor prefix that identifies the manufacturer.
+* Broadcast Address: The all-ones host address of a subnet (ex. .255 on a /24) that reaches every host in the broadcast domain; with the .0 network identifier it leaves 2^8 - 2 = 254 usable hosts. 
+* Hypervisor: the software layer that creates and manages virtual machines on one physical host; VM escape and VM sprawl are its characteristic risks. 
+* OSI Model: Open Systems Interconnection seven-layer model (Application, Presentation, Session, Transport, Network, Data Link, Physical) that maps each network control to the layer it operates at; the basis for reasoning about where a device can and cannot see.
+* Encapsulation: the process by which each layer wraps data in its own header as it descends the stack (HTTP to TCP segment to IP packet to Ethernet frame to bits), reversed as de-encapsulation at the far end.
+* Subnet/subnetting: A logical layer 3 partition of an address space; the subnet mask (ex. the /24 in 10.1.0.0/24) marks the boundary between the network and host portions of an address. 
+* Broadcast domain: The set of devices that receive one another's broadcast frames; a flat network is one large broadcast domain, while each VLAN forms its own.
+* Trunk/ IEEE 802.1Q: A switch link that carries multiple VLANs, tagging frames with the 802.1Q standard's 4-byte tag (a 12-bit VLAN ID) so the receiving switch knows which VLAN each frame belongs to.
+* Native VLAN: the one VLAN whose frames cross a trunk untagged; abused by double-tagging VLAN hopping, so the hardening practice is to move it off VLAN 1 to an unused, dead VLAN.
+* DMZ/ screened subnet: A demilitarized  zone (DMZ): a segment hosting Internet-facing services, isolated from the internal network by firewalls on both sides so a compromised public server cannot step directly into trusted zones. 
+* Micro-segmentation: Segmentation pushed down to the individual workload, enforcing least-privilege policy host-by-host rather than zone-by-zone; an enabling mechanism of zero trust. 
+* Lateral Movement: The technique by which an attacker who has compromised one host pivots to others; the primary threat that segmentation is designed to stop.
+* Network Access Control (NAC): A mechanism (commonly IEEE 802.1X) that authenticates and inspects a device before granting NW access, quarantining or remediating those that fail identity or posture checks.
+* Routing Table: A router's list of known destination networks, each paired with a next hop and outgoing interface; consulted for every packet to decide where to forward it.
+* Longest-prefix match: The rule that a router selects the most specific (longest-prefix) matching route; a packet matching both a /24 and a /16 takes the /24.
+* Default Route: The 0.0.0.0 /0 "gateway of last resort" that forwards any packet matching no more specific route; what a host's default gateway setting points at.
+* Traceroute / TTL: A tool that maps the hop-by-hop path by sending packets with an increasing TTL, so each router in turn returns an ICMP "time-exceeded" message revealing its address. 
+* Access Control List (ACL): An ordered, stateless list of permit/deny rules matched against packet header fields (IP, protocol, port); evaluated top to bottom, first match wins.
+* Stateful Firewall: A firewall that tracks connections in a state table and automatically permits matching return traffic for a session it has already allowed, unlike a stateless ACL.
+* DHCP snooping: A switch-level defense that designates trusted ports and drops rogue Dynamic Host Configuration Protocol (DHCP) server responses arriving on untrusted ports, defeating rogue DHCP servers and underpinning dynamic ARP inspection. 
+* DNSSEC: DNS Security Extensions, which cryptographically sign DNS records so a resolver can verify authenticity and integrity against spoofing and cache poisoning; it provides no confidentiality. 
+* MAC spoofing: an attacker overrides the factory MAC with an allowed value and walks past the filter, defeats MAC filtering.
+* **Security by obscurity** = relying on _secrecy of the design or method_ for protection, rather than on a proper secret like a key.
+
+* Subnetting Example: 10.1.5.0 /24 how many usable host addresses? 32-24 = 8    2^8 = 256 -2 (broadcast .255 and NW identifier .0) = 254 remaining assignable host addresses. 
+
+Chapter 4: Network Monitoring & the Limits of Encryption
+	* payload: content carried inside packets
+	* metadata: source and destination IP, port, the timing and size of each packet
+* Network Monitoring Fundamentals:
+	* Full-Packet Capture (FPC): every byte of every packet, recorded to disk: what tcpdump produces. FPC lets you replay the exact session later, is the most expensive in storage, least useful for encrypted payloads bc you capture cyphertext. It's value is it's metadata and role in ground-truth evidence.
+	* Flow Records: A summary of each conversation (who talked to who on what ports, how long, how many bytes and packets) without contents. Net-flow (IPFIX standard) is the canonical form. Flow is cheap, scales to enormous networks, and, crucially, survives encryption untouched, because it never depended on payload in the first place. A brute-force burst or a beaconing implant is visible in flow even when every packet is ciphertext.
+	* Logs: Records generated by the endpoints themselves: the web server's `access.log`, the host's `auth.log`, firewall and DNS logs. Logs are not network captures at all; they are the systems narrating their own activity. Because the endpoint sees the traffic _after_ decryption, logs frequently hold the plaintext that the wire hid.
+	* SPAN Port: (Switched Port Analyzer, also called port mirroring) configures a switch to copy traffic from one or more ports to a monitoring port. SPAN is inexpensive and software-configurable, but it competes for switch resources and may silently drop frames under load, so it can miss exactly the burst you most want to see.
+	* Network Tap: a passive hardware device inserted inline that copies traffic to the sensor without consuming switch capacity. Taps are more reliable and harder to misconfigure, but they cost money and require physical placement.
+	* Sensor Placement: 
+		* **Internet edge (perimeter)**: 
+			* Sees: inbound scans and brute-force attempts
+			- Blind to: lateral movement between internal hosts
+	* **Internal segment**
+		- Sees: east-west traffic between internal hosts
+		- Blind to: perimeter activity
+	* **Multiple chokepoints**
+		- No single location covers everything, so mature programs place sensors at several points.
+		- Anchor: NIST SP 800-53 SI-4 (System Monitoring) treats sensor placement as a deliberate design decision, not an afterthought.
+* FPC/flow/log trade:
+	- **Full-packet capture:** highest fidelity and cost, but the payload is useless when encrypted.
+	- **Flow/NetFlow:** cheap and scalable, and still works on encrypted traffic because it's metadata.
+	- **Logs:** generated on the endpoint, and often hold plaintext that encryption hid on the wire.
+	- **SPAN port:** cheap, but can drop packets under load.
+	- **Network tap:** passive hardware that reliably captures everything.
+* The Encryption Paradox: 
+	* The same TLS and SSH that protect a customer's checkout also wrap the attacker's stolen session. This is the **encryption paradox**: the control that guarantees confidentiality for everyone guarantees it for the adversary too.
+	* **Steganography**: does not scramble a message; it hides the fact that there is a message at all, tucking data inside the unused bits of an ordinary image, an audio file, or even the timing between network packets.
+	* TLS and SSH protect the **content**: the application payload, the keystrokes, the file bytes, the HTTP request body, the credentials in transit. 
+	* What encryption exposes: the cipher protects the cargo, not the label
+		* Endpoints: Source and destination IP addresses and ports are routing information; they must be plaintext or the packet cannot be delivered. These remain visible.
+		* Timing & Rhythm:  When packets are sent, and how often, leaks behavior. Beaconing malware that phones home every sixty seconds betrays itself the same way.
+		* **Packet sizes.** The length of encrypted records correlates with the content. Traffic-analysis research has shown that page identities, typed characters, and even spoken phrases over an encrypted channel can sometimes be inferred from size patterns alone.
+		* SNI & Certificates: In most TLS today, the Server Name Indication (the hostname the client is asking for) travels in the clear in the handshake, and the server's certificate (its subject, issuer, validity, and fingerprint) is observable. Tools build a JA3/JA4 fingerprint from the handshake's parameters, often identifying the _client software_ even when nothing inside is readable.
+		* **The banner.** Many protocols announce themselves before encryption fully engages. SSH exchanges a version banner in cleartext.
+	* Encrypted-traffic analysis (ETA): drawing conclusions from this exposed metadata without decrypting anything. 
+		* It is powerful: ETA can flag beaconing, identify client tooling by fingerprint, and spot a brute-force by rhythm. 
+		* It is probabilistic, not proof: size and timing yield inference, not the literal command an attacker ran.
+		* To see what was actually done you go to logs.
+	* **sign-in history**:  shows where each login came from, on what device, at what hour. Encryption hides the content, but that metadata survives, and sing-in history is a good first place to look.
+	* **command-and-control (C2) traffic**: the communication link between an attacker and malware already running on a victim's machine (the "implant"). Through it, the attacker sends commands like "scan the network" or "grab these files," and the implant sends back stolen data and status updates.
+		* C2 runs over TLS (HTTPS) on port 443, the same encryption and port as normal web browsing. To a network monitor, it looks like someone visiting a website.
+		- **The paradox:** encryption hides content from _everyone_ in the middle, defenders included. The tool that protects your users' sessions also shields the attacker's channel.
+	- **TLS inspection proxy:** decrypts traffic at the network boundary, inspects it, then re-encrypts it and forwards it on
+		- consented man-in-the-middle: the proxy sits in the middle of a connection the endpoints believe is end-to-end, and the only thing separating it from an attack is authorization. The user feels like they went straight to the site; in fact every byte passed through an approved interceptor.
+		- breaks end-to-end encryption, fails against cert-pinning, raises privacy/legal questions, can't touch SSH sessions, 
+		- US-CERT alert TA17-075A ("HTTPS Interception Weakens TLS Security," 2017) found that many inspection products fail to properly validate the upstream server's certificate (or fail to relay validation status to the client) so a connection a browser would have refused is silently accepted. The protection built into the browser has to be rebuilt into the proxy, or the cure introduces the disease.
+	- Logs: A log is written by the endpoint _after_ it has decrypted and processed the traffic, so it captures the meaning the wire concealed.
+		- **Authentication Log**: from the host, records every login attempt, catches Brute Force (ATT&CK T1110), fully in plaintext even though every byte of the session is encrypted.
+		- Access Log: web server's logs record the reconnaissance that opened the campaign: requests probing paths, methods, and responses, mapping **T1595.001 (Active Scanning)**.
+	- Brute Force & Recon Signatures: 
+		- A high **rate** of failures from one source in a short window: the rhythm the cipher could not hide and the log records as discrete events.
+		- **Username cycling**: the same source attempting `root`, `admin`, `oracle` in sequence.
+		- A **failure-then-success** pattern from a single IP: the most actionable signal, because it marks the moment the defense was breached.
+		- Recon: bursts of `404`s, scanner `User-Agent` strings, and requests for sensitive paths (`/admin`, `/.git`, `/wp-login.php`).
+	- Log integrity: 
+		- log integrity: a sophisticated attacker who lands on a host will try to edit or delete `auth.log` to erase their tracks (**T1070, Indicator Removal**). The countermeasure is to ship logs off the host to a central, append-only store the moment they are written, so that local tampering cannot reach the authoritative copy.
+		- time synchronization: logs from many systems are only correlated if their clocks agree. Disciplined NTP across the fleet (ideally to a common, trusted source) lets you line up the web log's recon and the auth log's brute-force as one timeline.
+	- The defining lesson: 
+		- _logs hold the plaintext the encrypted wire hid_, because the endpoint logs after decryption. 
+		- Brute-force's signature is failure-then-success from one IP. 
+		- Centralize logs off-host (integrity) and synchronize clocks with NTP (correlatability): both are prerequisites for treating logs as evidence. 
+	- Intrusion Detection & Prevention:
+		- IDS: observes traffic or host activity and raises an **alert**: it is a detective control, sitting out of band, watching a copy of the traffic from a SPAN port or tap.
+		- IPS: sits **inline** in the traffic path and can **block** a recognized attack, a preventive control.
+		- network-based IDS (NIDS): monitors traffic on a segment. It sees broadly across many hosts, but on encrypted traffic it is reduced to metadata, the very limit this chapter circles. A NIDS can flag the brute-force _rhythm_ but cannot read the SSH session.
+		- host-based IDS (HIDS): runs on an endpoint and watches that system's logs, files, processes, and local activity. Because it lives where decryption happens, a HIDS can read the `auth.log` failure-then-success that a NIDS never sees. On encrypted networks, the HIDS' vantage point is increasingly the decisive one.
+	- Signature-based detection: matches activity against known-bad patterns: a specific exploit string, a known brute-force tool's banner.
+	- Anomaly-based detection: builds a baseline of normal and flags deviations: a host suddenly opening hundreds of SSH connections. It can catch the unknown but generates more false positives and demands a trustworthy baseline.
+	- Pattern matching catches the **known-knowns**, the infection you have met before.
+	- Learned correlations catch the **known-unknowns**, a fresh variant of a family you already know.
+	- autonomous, unsupervised AI reaches for the **unknown-unknowns**, the net-new malware no one knew to look for.
+	- **AI-driven Network Detection and Response (NDR)** learns a baseline and flags the anomalous patterns that signature-based tools (blind to anything not yet written into a rule) will miss.
+	- An untuned IDS is worse than none: it drowns analysts in noise until real alerts are ignored (alert fatigue).
+	- Tuning: is the ongoing work of suppressing benign triggers, adjusting thresholds, and shaping rules to the environment.
+	- A false positive: (benign flagged as malicious) wastes analyst time
+	- false negative: (a real attack missed) is the one that ends careers.
+	- Bayes’ theorem:  P(attack | alert) = P(alert | attack) · P(attack) / P(alert) = (0.99 × 0.01) / (0.99 × 0.01 + 0.01 × 0.99) = 0.0099 / 0.0198 = 0.50
+- Logging & Continuous Monitoring: 
+	- **NIST SP 800-92, Guide to Computer Security Log Management**, and **SP 800-53 control AU-2 (Event Logging)** define what mature logging looks like.
+	- Centralized logging: ships records off each host, in near-real-time, to a dedicated collector.
+		- Provides: **integrity** (an attacker who wipes the local log cannot reach the central copy), **correlatability** (the web recon and the SSH brute-force sit side by side), and **availability** (one place to search instead of a thousand hosts).
+	* Retention: is how long logs are kept, and it is driven by two forces: investigation and compliance. Many breaches are discovered months after the intrusion (the industry's dwell time), so logs must outlive the attacker's patience.
+	* **NIST SP 800-137, Information Security Continuous Monitoring (ISCM)**, reframes the goal: maintain ongoing awareness of security state to support timely decisions. 
+	* Continuous monitoring means logs are collected, analyzed, and acted upon as a steady stream rather than a periodic chore. 
+	* The practical engine of continuous monitoring is the SIEM (Security Information and Event Management), which ingests centralized logs, correlates across sources, and alerts in near-real-time.
+* NIST Special Publications:
+	* **NIST SP 800-94, Guide to Intrusion Detection and Prevention Systems.** The reference for IDS/IPS architecture, the NIDS/HIDS and signature/anomaly distinctions, and tuning.
+	* **NIST SP 800-92, Guide to Computer Security Log Management.** Defines what to log, how to generate and protect logs, centralization, and retention.
+	* **NIST SP 800-137, Information Security Continuous Monitoring (ISCM).** Establishes continuous monitoring as ongoing situational awareness rather than periodic review.
+	* NIST SP 800-53, **AU-2, Event Logging (with AU-6, Audit Record Review).** Collect, alert on, review, and retain audit logs, the operational backbone of _Logging & Continuous Monitoring_, including centralization and time synchronization.
+	* NIST SP 800-53: **SI-4, System Monitoring.** Operate the sensors, IDS/IPS, and traffic analysis that give a network defensible visibility.
+* MITRE ATT&CK:
+	* **T1595.001, Active Scanning**: the opening scan of the web server.
+	- **T1110, Brute Force**: the `hydra` password spray against SSH.
+	- **T1078, Valid Accounts**: the successful login using the recovered credential, the technique that turns a brute-force into a breach.
+	- **T1040, Network Sniffing**: the attacker's own `tcpdump` capture; on the defender's side, the same technique describes hostile monitoring of a wire.
+- All together:
+- **Active Scanning (T1595.001): the recon scan**
+    - Where it leaks: Web access.log (burst of requests, 404 spike, scanner User-Agent)
+    - Control: Web log monitoring; NIDS recon signatures
+    - Standard: SP 800-92; AU-2 Event Logging, SI-4 System Monitoring
+- **Brute Force (T1110): hydra SSH spray**
+    - Where it leaks: Connection rhythm (metadata); libssh banner; auth.log failures from one IP
+    - Control: HIDS / auth-log alerting on failure rate; rate-limiting; IPS block
+    - Standard: SP 800-94; SP 800-92
+- **Valid Accounts (T1078): login with the cracked password**
+    - Where it leaks: auth.log "Accepted password" after many failures, same IP
+    - Control: Failure-then-success correlation; impossible-travel and anomaly alerting
+    - Standard: SP 800-94; SP 800-137
+- **Network Sniffing (T1040): attacker's tcpdump**
+    - Where it leaks: Encrypted payload hides content, not endpoints/timing/sizes
+    - Control: Encryption of data in transit (limits content exposure); ETA on metadata
+    - Standard: SI-4 System Monitoring
+- **Indicator Removal (T1070): wiping local logs**
+    - Where it leaks: Gap in centralized copy; the deletion event itself
+    - Control: Off-host centralized, append-only logging
+    - Standard: SP 800-92; AU-2 Event Logging
+- **Encrypted session: payload opaque to the wire**
+    - Where it leaks: SNI, JA3/JA4 fingerprint, packet sizes, timing
+    - Control: Encrypted-traffic analysis; pivot to host logs
+    - Standard: SP 800-94; SI-4 System Monitoring
+CISSP Domains:
+* **Domain 4 – Communication & Network Security (primary)**
+    - Encryption hides content, not metadata
+    - Packet capture, NetFlow, SPAN/taps, sensor placement
+    - NIDS/NIPS and their limits on encrypted traffic
+- **Domain 7 – Security Operations (secondary)**
+    - Centralized, synced, tamper-resistant logging
+    - Continuous monitoring (SP 800-137) → SIEM
+    - Host logs (`auth.log`) when the wire is dark
+- **Domain 6 – Security Assessment & Testing (secondary)**
+    - Test that detection fires; tune false positives/negatives
+    - Treat log review and coverage as testable controls
+    - Find sensor coverage gaps first
+CH4 Key Terms:
+* Metadata: The observable properties of a connection (endpoints, ports, timing, packet sizes) that remain in the clear because routing requires them, even when the payload is encrypted.
+* Flow / NetFlow (IPFIX): A summary record of a conversation (who, ports, bytes, duration) without contents; cheap, scalable, and unaffected by encryption. IPFIX (IP Flow Information Export) is the vendor-neutral standard form of Cisco's NetFlow.
+* SPAN port vs network tap: Two ways to copy traffic to a sensor: a switch-configured port mirror, or Switched Port Analyzer (SPAN) port (cheap, can drop under load) versus a passive inline hardware device (reliable, costs money).
+* Encrypted-traffic analysis (ETA): Drawing security conclusions from exposed metadata (timing, sizes, SNI, JA3/JA4 fingerprints) without decrypting payload; powerful but probabilistic.
+* IDS vs IPS: An intrusion detection system alerts on recognized activity (out of band, detective); an intrusion prevention system blocks it (inline, preventive).
+* Continuous monitoring (ISCM): Maintaining ongoing, near-real-time awareness of security state through collected and correlated logs, replacing periodic review (NIST SP 800-137).
+* TLS-inspection proxy: An application proxy that terminates, decrypts, inspects, and re-encrypts Transport Layer Security (TLS) traffic: a sanctioned, consented man-in-the-middle that trades end-to-end encryption for payload visibility, with privacy, pinning, and certificate-validation tradeoffs.
+* Alert fatigue: The degradation of detection effectiveness when a system raises so many alerts (often false positives) that analysts can no longer distinguish signal from noise and begin to ignore or mute them: "an alert for everything becomes an alert for nothing."
+* NIDS (network-based IDS): An IDS that monitors traffic on a network segment, seeing broadly across many hosts but reduced to metadata on encrypted traffic: it can flag the brute-force rhythm yet cannot read the SSH session. 
+* HIDS (host-based IDS): An IDS that runs on an endpoint and watches that system's logs, files, processes, and local activity; because it lives where decryption happens, it can read the `auth.log` failure-then-success a NIDS never sees.
+* Signature-based detection: Matching activity against known-bad patterns (a specific exploit string, a tool's banner): precise and low-noise, but blind to anything new it has never seen before.
+* Anomaly-based detection: Building a baseline of normal and flagging deviations from it (a host suddenly opening hundreds of SSH connections); it can catch the unknown but generates more false positives and demands a trustworthy baseline.
+* False Positive: Benign activity flagged as malicious; it wastes analyst time and, in volume, drives alert fatigue. Raising sensitivity to cut false negatives makes false positives explode.
+* False negative: A real attack that detection misses entirely: the costlier of the two errors. Relaxing sensitivity to silence noise lets real attacks slip through; no setting eliminates both at once.
+* Centralized logging: Shipping records off each host in near-real-time to a dedicated collector, delivering integrity (a wiped local log cannot reach the central copy), correlatability, and availability: the pivot from "logs exist" to "logs are usable."
+* Full-packet capture (FPC): Recording every byte of every packet to disk (what `tcpdump` produced): the highest-fidelity, replayable source, but the most storage-expensive and least useful when the payload is encrypted ciphertext.
+* Beaconing: The regular, periodic call-home pattern of malware contacting its command-and-control server (e.g. every sixty seconds); the rhythm betrays it in flow and metadata even when every packet is ciphertext.
+* Authentication log / access log: Host records written in plaintext after decryption: `auth.log` captures the SSH failed-then-accepted brute-force (ATT&CK T1110), and the web `access.log` captures the reconnaissance scan (T1595.001) that opened the campaign.
+
+Ch 5 Notes: Vulnerability & Remediation:
+*  vulnerability:  a weakness in a system that an attacker can leverage to violate a security policy
+* exploit:  the concrete technique or code that turns that weakness into impact.
+* **Remote code execution (RCE)**: a vulnerability that lets an attacker run their own code on a target system over a network, without physical access or valid credentials.
+* **T1190 – Exploit Public-Facing Application (Initial Access)**: The attacker gets in by exploiting a flaw in something exposed to the internet, such as a web app, VPN, mail server, or API. Common vectors include SQL injection, unpatched CVEs (e.g., Log4Shell, MOVEit), deserialization bugs, and file-upload flaws. The result is a foothold on the server.
+* **T1059 – Command and Scripting Interpreter (Execution)**: Once in, the attacker runs commands through built-in interpreters: PowerShell (.001), Unix shell/bash (.004), Windows cmd (.003), Python (.006), and others. These are used for recon, downloading payloads, persistence, and lateral movement. This is often called "living off the land" because it relies on tools that are already installed.
+* **The chain together:**  Exploit the web app → gain code execution in the server process → spawn a shell (e.g., `w3wp.exe` → `cmd.exe`/`powershell.exe`, or `java` → `/bin/sh`) → run attacker commands.
+* Vulnerability Life Cycle:
+	* A vulnerability's life cycle runs from introduction (written into code) to discovery, disclosure, weaponization (exploit released), and patching. Knowing this timeline lets defenders act before attackers do.
+	* **CVE (Common Vulnerabilities and Exposures)**: the _identifier_ for a specific flaw in a specific product. `CVE-2021-41773` names exactly the Apache 2.4.49 traversal bug and nothing else. CVE answers "_which_ vulnerability."
+	* **CWE (Common Weakness Enumeration)**, maintained by MITRE: the _category_ of mistake. The ShopQuest flaw is an instance of path traversal (CWE-22). CWE answers "what _class_ of defect," which is how you reason about prevention across many products.
+	* **CVSS (Common Vulnerability Scoring System)**, governed by FIRST: the _severity score_ from 0.0 to 10.0, built from base metrics such as attack vector, attack complexity, privileges required, and the confidentiality/integrity/availability impacts. CVSS answers "how _bad_."
+		* One sentence to memorize: CVE _names_ it, CWE _classifies_ it, CVSS _scores_ it. NVD _indexes_ all three together. Mixing CVE and CWE is the most common trap on this topic.
+	* National Vulnerability Database (NVD), run by NIST, enriches CVE records with CVSS scores, affected-product data, and references. It is the canonical lookup that scanners and analysts consult.
+	* coordinated disclosure: a researcher privately notifies the vendor, the vendor develops a fix, and details go public alongside the patch. 
+	* Zero-day: exploited before any fix exists, so the patch gap is effectively the whole window.
+	* patch gap: the interval between public disclosure and a given host actually applying the update.
+* Vulnerability Management:
+	* Vulnerability management: the continuous, cyclical process of identifying, classifying, prioritizing, remediating, and verifying weaknesses across an environment.
+	* asset inventory: (hosts, services, versions, owners, and data sensitivity) is the foundation of every later step. The single unpatched Apache server was a vulnerability; the fact that it was unaccounted for is what let it stay vulnerable. Inventory turns "somewhere out there" into "host 10.0.0.14, owner X, due for patching."
+	* patching examples: turn on automatic updates, rotate API keys, switch on dependency alerts when writing software
+	* unauthenticated (network) scan: probes a host from outside with no credentials. It sees what an attacker sees (open ports, banners, the Apache version string) but cannot inspect installed packages or configuration. It is fast and broad but shallow.
+	* authenticated (credentialed) scan: logs in and reads installed software, patch levels, and settings directly. It is far more accurate, produces fewer false positives, and finds flaws invisible from the wire, but requires managed credentials and more trust.
+	* Zenmap: the official free graphical interface for **Nmap**, the network scanner. It lets you run Nmap scans without the command line and shows the results visually.
+	* patch management: run as a disciplined program, the subject of **NIST SP 800-40 (Enterprise Patch Management)**. A mature program tracks available updates against the inventory, tests patches before deployment, schedules them within risk-based service-level targets, and confirms installation.
+* Security Assessment & Testing:
+	* vulnerability assessment: enumerates and reports weaknesses. It is broad, largely automated, and stops at "here is what could be exploited." 
+	* penetration test: goes further, it attempts to _actually exploit_ findings, chain them, and demonstrate real impact, validating which weaknesses matter.
+		* **NIST SP 800-115** is the technical guide for both vulnerability assessment and pen testing
+	* **Black box**: the tester is given no internal knowledge and works from outside, simulating an external attacker.
+	* **Grey box**: partial knowledge, such as a low-privilege account or basic architecture diagrams, simulating an insider or a foothold-holding attacker.
+	* **White box**: full knowledge, including source code and configuration, maximizing coverage and efficiency.
+	* rules of engagement (RoE): document the scope (which hosts and addresses are in bounds), the timing, the permitted techniques, the exclusions (no denial-of-service, no production data exfiltration), the emergency contacts, and the explicit written permission to test.
+	* Teaming:
+		* red team: emulates adversaries to test defenses under realistic conditions, often stealthily and over longer campaigns than a scoped pentest.
+		- blue team: defends, detects, and responds.
+		- purple team: is the collaboration between them (red shares techniques, blue tunes detections) so the exercise improves defenses rather than just scoring points.
+	- If a scenario asks who must _authorize_ a penetration test, the answer is senior/executive management, not the IT team being tested. Testing without written authorization is unethical and illegal.
+- Secure Software & OWASP:
+	- OWASP Top 10:  the industry's consensus list of the most critical web-application risk categories.
+		- **Vulnerable and outdated components**: the root cause. Modern stacks pull in vast dependency trees, and a flaw in any component is a flaw in your application.
+		- **Security misconfiguration**: Insecure defaults and unnecessary features expand the attack surface.
+		- **Broken access control**: let attackers do things they should never be permitted to do.
+		- **Injection**: perennial risk in which untrusted input is interpreted as a command or query (SQL injection, OS command injection, and cross-site scripting, where a victim’s browser runs script an attacker planted in a page) and the fix: (never mix data and code; use parameterized queries) generalizes everywhere.
+		- **Cryptographic failures:** Sensitive data left unprotected, like a database password stored in cleartext in `config.php`. Here, that one choice turned a web foothold into payment-data theft.
+		- **Software supply-chain failures:** You inherit the security of every dependency you use. SolarWinds showed how one trusted update can compromise thousands of networks.
+		- **Insecure design:** A flaw built into the design that no patch can fix, such as an upload form that was never meant to accept executable content.
+		- **Authentication failures:** Weak or reused passwords that let attackers in through credential stuffing and password spraying.
+		- **Software and data integrity failures:** Trusting code or updates you can't verify. Code signing addresses this by proving the bytes you run are exactly what the vendor shipped.
+		- **Security logging and alerting failures:** Gaps in monitoring, like ShopQuest's database server that never sent its logs and went unnoticed for three weeks.
+		- **Mishandling of exceptional conditions:** Software that fails open instead of closed, or leaks stack traces with file paths and queries that give attackers a map. Fail closed, and reveal nothing useful.
+	- Input validation: checks that incoming data matches what the program expects (type, length, format, range) and rejects what does not
+	- input sanitization: neutralizes dangerous content (escaping or stripping characters that would otherwise be interpreted as code).
+	- buffer overflow: the classic consequence of skipping the length check: more data is written than the allocated memory can hold, and the spillover overwrites adjacent memory: potentially the control flow itself.
+	- AI & Security:
+		- Prompt injection: injection aimed at a language model: untrusted input the model executes as if it were instruction, so the same validate-don't-trust discipline applies.
+		- **AI-assisted coding**: brings the opposite risk (_hallucinated_ vulnerabilities and insecure snippets an LLM emits with total confidence) pushing automated security testing earlier into the CI/CD pipeline.
+		- **red-teaming AI**: probes its robustness against evasion and extraction
+		- **model hijacking** and inference attacks target the ML libraries in your software supply chain.
+	- error handling: when something goes wrong, the app must fail without leaking.
+	- information leakage: a gift to the attacker that gives them valuable info when the software failed. 
+	- insecure direct object reference (IDOR): occurs when an application exposes a reference to an internal object (a record ID in a URL, a filename, a database key) and then fails to check whether the requesting user is actually authorized to see _that_ object.
+	- security by obscurity: making the identifier long and random and hoping nobody guesses it. A hard-to-guess reference is not an authorization mechanism: it is a delay, and its strength is just keyspace arithmetic you can quantify.
+	- rule of least power says: choose the least powerful language or mechanism that solves the problem, limit not just what an account may do, but what your own constructs are _capable_ of doing.
+	- Open-source software: Like an open cipher, source open to public scrutiny can be inspected by the whole field for shortcuts and flaws, but at the risk of attackers finding a flaw or backdoor.
+	- secure software development lifecycle (SDLC): integrates security into every phase, requirements, design (including threat modeling), coding, testing, deployment, and maintenance, rather than treating it as a final gate. 
+	- Shift-left: the principle of moving security activities earlier, where defects are cheaper to fix: a flaw caught in design costs a fraction of one caught in production, or one caught by an attacker.
+	- OWASP Application Security Verification Standard (ASVS): provides a tiered, testable catalog of security requirements (from basic to high-assurance) that teams use as both a design checklist and a verification benchmark.
+	- **OWASP WSTG:** A step-by-step guide for web security testing. Its test **WSTG-ATHN-02** checks for default credentials.
+	- **Default credentials:** Built-in admin passwords, easily looked up in manuals, on device stickers, or in public lists like SecLists and CIRT.net. Attackers just log in with no skill needed, so change them before deployment.
+- Malware:
+	- **Malware:** Malicious software that either delivers an attack or is left behind afterward. Naming its family precisely matters because the family determines the defense.
+		- **Three parts of any malware:** the infection vector (how it arrives), the trigger (what activates it), and the payload (what it does).
+	- virus: attaches itself to a host file or program and needs user action (opening the file, running the program) to spread; it cannot travel on its own. 
+	- worm: a standalone program that _self-propagates_ across a network with no human intervention, which is what makes worms so explosive and so dangerous in combination with other payloads.
+	- trojan horse: disguises malicious functionality as something desirable (the pirated game, the "codec" you needed, the cracked utility) so the user installs it willingly.
+	- remote access trojan (RAT): gives an attacker interactive remote control of the machine.
+	- **Backdoor:** Any mechanism that bypasses normal authentication, whether a forgotten developer test shortcut, an insider's planted access, or an adversary's implant, sometimes delivered through compromised hardware or firmware.
+	- **Flat business:** Everyone has broad access and there are no layers to catch mistakes, so one careless click can breach the whole company. That makes user behavior as critical as any tool.
+	- **Security champion:** A designated employee who shares real scams, runs fake-phishing tests, and answers "is this real?" questions, making awareness a low-cost control.
+	- **Rootkit:** Malware that gains and hides root-level access, often at or below the kernel, so it can conceal itself and survive cleanup. It is usually installed after initial entry to persist invisibly.
+	- **bot**:  a compromised machine that quietly awaits instructions from an attacker's command-and-control (C2) infrastructure; thousands or millions of them together form a **botnet**
+	- Botnets: monetize through spam, credential stuffing, proxying the attacker's own traffic to hide its origin, and above all distributed denial-of-service (DDoS)
+	- DDoS: "distributed" because the flood comes from many IP addresses at once, which is why insecure IoT devices are prime recruits.
+	- **Mirai (2016):** A botnet that hijacked hundreds of thousands of IoT devices still using default passwords. Its DDoS attack on Dyn knocked Twitter, Netflix, Reddit, and Spotify offline on the US East Coast, and its leaked source code spawned DDoS-for-hire variants.
+	- **Shodan:** A search engine for internet-connected devices that makes exposed, vulnerable hardware easy for anyone to find.
+	- Ransomware: encrypts the victim's data and demands payment (typically in cryptocurrency) for the decryption key: it is encryption-at-rest weaponized and turned against its owner.
+		- A worm component makes ransomware far more effective by spreading to network-attached storage and encrypting the _backups_, removing the victim's ability to simply restore.
+	- double extortion: exfiltrate a copy _before_ encrypting, so paying for the key still leaves the victim trusting the attacker to delete the stolen copy.
+	- ransomware-as-a-service (RaaS): operators license their malware and infrastructure to affiliates under subscription or profit-share models (DarkSide, behind the Colonial Pipeline incident, and REvil are named examples), lowering the skill bar dramatically.
+	- logic bomb: malicious code that lies dormant until a specific trigger condition is met: a date, the deletion of an employee's account, the arrival at a particular target.
+	- Spyware:  quietly observes (logging keystrokes, harvesting credentials, tracking browsing) and exfiltrates what it learns.
+- Malware Distribution Channels:
+	- drive-by downloads: from compromised or malicious web pages, unsolicited email attachments and links, removable physical media, and self-propagation by worms.
+	- watering-hole attack: compromises a site the intended victims are known to visit so the value is the visitors, not the site. 
+	- Typo-squatting (URL hijacking): registers domains that are near-misses of popular ones (a misspelled `amazon.com`) to catch users and serve them malware or phishing.
+	- **WHOIS lookup:** A query that shows a domain's registration details, such as owner and registrar. On a suspicious look-alike domain, it often reveals a brand-protection firm bought it defensively.
+	- **Signature-based antivirus:** Matches file hashes against known malware. It's fast but brittle, because changing one byte changes the hash and evades detection.
+	- **Polymorphic malware:** Changes its own code as it spreads, so no two copies share a signature.
+	- **Encrypted virus:** Hides its code as ciphertext, exposing only a small decryption routine.
+	- **VM-aware malware:** Detects virtual machines or sandboxes and stays dormant there, activating only on real victim machines to evade analysis. 
+- Key Distinctions: 
+	- virus _needs a host_, worm _self-propagates_, trojan _deceives_, RAT/backdoor _grants access_, rootkit _hides privilege_, bot/botnet _obeys C2_, ransomware _extorts via encryption_, logic bomb _waits for a trigger_, spyware _observes_. And remember why signatures fail: a hash matches only one exact file, so polymorphism (changing the file) beats it. 
+- Fixing Vulnerabilities:
+	- security operations: containment, eradication, recovery, and verification.
+	- **Containment:** Limit damage without destroying evidence. For example, use a host firewall (`ufw default deny incoming`, then allow only required ports) to cut attacker paths while keeping the host available.
+	- **Eradication:** Remove every foothold: backdoor accounts, web shells (T1505.003), and all exposed credentials, including cleartext ones in config files. Patching alone leaves existing backdoors in place.
+	- **Recovery (patch and harden):**
+	    - Upgrade Apache off 2.4.49 to fix CVE-2021-41773, and disable unneeded modules.
+	    - Give the MySQL app account only the permissions it needs, with a strong passphrase stored in a secrets manager rather than in code.
+		- **Secure configuration:** Hardening as a control: remove default and unused accounts, disable unneeded features, enforce least privilege, and start from a secure baseline. Configuration determines the blast radius.
+	- **Verification:** Re-run the original attack to prove the fixes work. It's the difference between believing something is fixed and demonstrating it, and it's the step most often skipped.
+		- Remediation verification: re-testing the exact exploit path to confirm it's fixed.
+- Standards & Frameworks:
+	- **Identification and scoring**:
+		- **CVE program:** Unique IDs for known vulnerabilities, such as CVE-2021-41773.
+		- **CWE (MITRE):** Catalog of underlying weakness types, enables prevention & trend analysis.
+		- **CVSS (FIRST):** Standard severity scoring so 'critical' is universally understood.
+		- **NVD (NIST):** Authoritative database that aggregates and enriches CVE data for scanners.
+	* **Process and testing**:
+		- **NIST SP 800-40:** Patch management: inventory, prioritize, test, deploy, verify.
+		- **NIST SP 800-115:** Guide to security testing: scanning, vulnerability assessment, and pen testing.
+	* **Secure software**:
+		- **OWASP Top 10:** Ranking of the most critical web-app risks.
+		- **OWASP ASVS:** Tiered, testable security requirements for apps.
+	* **Adversary behavior**:
+		- **MITRE ATT&CK:** Knowledge base of real attacker tactics and techniques. Mapping findings to it shows which detections and mitigations are needed.
+			- **T1190** (Exploit Public-Facing Application)
+			- **T1059** (Command and Scripting Interpreter)
+			- **T1552.001** (Unsecured Credentials: Credentials In Files)
+			- **T1021** (Remote Services)
+			- **T1078.001** (Valid Accounts: Default Accounts) 
+			- **T1505.003** (Web Shell)
+	- Pair each standard with its verb: CVE _names_, CWE _classifies_, CVSS _scores_, NVD _indexes_, 800-40 _patches_, 800-115 _tests_, OWASP Top 10 _prioritizes_, ASVS _verifies_, WSTG _tests_, ATT&CK _maps adversary behavior_.
+- CISSP CBK:
+	- **Domain 8: Software Development Security (primary)**
+		- Secure SDLC, shift-left, threat modeling
+		- OWASP Top 10: injection, broken access control, misconfiguration, vulnerable components
+		- Secrets management (no plaintext credentials); ASVS for verification
+	* **Domain 6: Security Assessment and Testing (secondary)**
+		- Vulnerability assessment vs. pen testing; black-, grey-, and white-box testing
+		- Rules of engagement and authorization; red, blue, and purple teams
+		- Authenticated vs. unauthenticated scanning; remediation verification (NIST SP 800-115)
+	* **Domain 3: Security Architecture and Engineering**
+		- Least privilege and secure defaults on the database
+		- Hardening baselines that limit the blast radius of code flaws
+	* **Domain 7: Security Operations**
+		- Ongoing vulnerability and patch management (NIST SP 800-40)
+		- IR lifecycle: containment, eradication, recovery, lessons learned; host firewall for containment
+	* **Key distinction:** Match the phase to the domain:
+		- Building → Domain 8
+		- Testing → Domain 6
+		- Configuring → Domain 3
+		- Operating/responding → Domain 7
+
+CH5 Key Terms: 
+* Vulnerability vs exploit: A weakness that can violate a security policy, versus the concrete technique or code that leverages it.
+* CVE / CWE / CVSS: Common Vulnerabilities and Exposures (CVE) is the identifier for a specific flaw; Common Weakness Enumeration (CWE) is the category of weakness (MITRE); and the Common Vulnerability Scoring System (CVSS) is the 0–10 severity score (FIRST).
+* Patch gap: The window between public disclosure of a vulnerability and a host actually applying the fix.
+* Authenticated scan: A credentialed scan that inspects installed software and configuration, yielding higher accuracy than an external network scan.
+* Penetration test: An authorized assessment that actually exploits and chains findings to demonstrate real impact, beyond merely enumerating them.
+* Least privilege: Granting an account only the rights it needs: here, a database login limited to required statements on one schema with a strong passphrase.
+* Virus vs. worm: A virus attaches to a host file and needs user action to spread; a worm is a standalone program that self-propagates across a network with no human intervention.
+* Polymorphic malware: Malware that mutates its own code as it spreads so that no two copies share a signature, defeating hash-based (signature) detection.
+* Insecure direct object reference (IDOR): Exposing a reference to an internal object (a record ID, filename, or key) without verifying the requester is authorized to access that specific object; not cured by obscure identifiers.
+* National Vulnerability Database (NVD): The NIST-maintained feed that indexes CVE entries together with their CWE weakness categories and CVSS severity scores, so a scanner finding can be looked up in one place.
+* Vulnerability assessment: Enumerating and reporting weaknesses on in-scope systems without exploiting them, distinguished from a penetration test by stopping short of demonstrating real impact (NIST SP 800-115).
+* Rules of engagement (RoE): The authorizing document that fixes a test's scope, timing, permitted techniques, exclusions, and escalation clause: what separates an authorized assessment from a crime.
+* Security by obscurity: Relying on a secret being hard to find or guess (such as a long random identifier) in place of an actual authorization check; it only delays an attacker and is not authentication.
+* Buffer overflow: Writing more data than an allocated memory region can hold so that adjacent memory is corrupted: the classic consequence of skipping a length check, exploitable to alter execution.
+* Trojan horse: Malware that deceives the user into running it by masquerading as something benign; unlike a virus or worm it does not self-replicate, it relies on the victim inviting it in.
+* Remote access trojan (RAT): A trojan payload that grants the attacker interactive remote control of the compromised machine, effectively a hidden backdoor for hands-on operation.
+* Rootkit: Malware that obtains and conceals privileged ("root") access, often at the kernel level or below the operating system, hiding its own files and processes from detection.
+* Bot / botnet: A bot is a compromised machine awaiting orders from an attacker's command-and-control (C2) infrastructure; many bots together form a botnet used for DDoS, spam, or relaying. A distributed denial-of-service attack is simply the botnet aimed at one target until it drowns, whether by raw volume (a SYN flood that opens thousands of half-finished connections and never closes them) or by amplification (spoofing the victim’s address so that open DNS or NTP servers fire their oversized replies back at it), which is why the real defense lives upstream at the provider, not on the victim’s own saturated link.
+* Logic bomb: Malicious code that lies dormant until a trigger (a date, an event, a missing paycheck) then executes its payload, which is why code review of trusted insiders matters.
+* VM-aware malware: Malware that checks whether it is running inside a virtual machine or sandbox and stays inert if so, frustrating automated analysis; related to the encrypted virus, which exposes only ciphertext plus a small decryption routine.
+* Patch management: Running remediation of known vulnerabilities as a disciplined, scheduled program rather than ad hoc, so the patch gap is closed before attackers exploit it (NIST SP 800-40).
+
+
+9/30/2026 NOTES
+* 2^128 = total possible IPv6 addresses
+* 2^32 = total possible IPv4 addresses
+*  wireshark- packet sniffing, NW analytics, 
+* ioc- indicator of compromise  
+* traceroute (tracert)= all previous routes and hops (all IP addresses visited on path)
+*  onion routing:
